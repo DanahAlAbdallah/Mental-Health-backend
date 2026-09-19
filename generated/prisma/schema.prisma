@@ -27,3 +27,25 @@ model User {
   password String
   role     String
 }
+
+model AvailabilitySlot {
+  id          String   @id @default(uuid())
+  therapistId String
+  date        String
+  startTime   String
+  endTime     String
+  isBooked    Boolean  @default(false)
+  createdAt   DateTime @default(now())
+}
+
+model Session {
+  id          String   @id @default(uuid())
+  therapistId String
+  patientId   String
+  slotId      String
+  date        String
+  startTime   String
+  endTime     String
+  status      String   @default("pending")
+  createdAt   DateTime @default(now())
+}

@@ -3,9 +3,10 @@ import express from "express";
 import cors from "cors";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
-
 import articlesRouter from "./routes/articles";
 import usersRouter from "./routes/users";
+import availabilityRouter from "./routes/availability";
+import sessionsRouter from "./routes/sessions";
 import { PrismaClient } from "../generated/prisma";
 
 const app = express();
@@ -20,6 +21,12 @@ app.use("/api/articles", articlesRouter);
 
 // USERS ROUTES
 app.use("/api/users", usersRouter);
+
+// THERAPIST AVAILABILITY SLOTS ROUTES
+app.use("/api/availability", availabilityRouter);
+
+// SESSEIONS ROUTES
+app.use("/api/sessions", sessionsRouter);
 
 // ================= LOGIN  =================
 

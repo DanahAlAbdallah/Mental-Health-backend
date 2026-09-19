@@ -134,6 +134,28 @@ exports.Prisma.UserScalarFieldEnum = {
   role: 'role'
 };
 
+exports.Prisma.AvailabilitySlotScalarFieldEnum = {
+  id: 'id',
+  therapistId: 'therapistId',
+  date: 'date',
+  startTime: 'startTime',
+  endTime: 'endTime',
+  isBooked: 'isBooked',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.SessionScalarFieldEnum = {
+  id: 'id',
+  therapistId: 'therapistId',
+  patientId: 'patientId',
+  slotId: 'slotId',
+  date: 'date',
+  startTime: 'startTime',
+  endTime: 'endTime',
+  status: 'status',
+  createdAt: 'createdAt'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -142,7 +164,9 @@ exports.Prisma.SortOrder = {
 
 exports.Prisma.ModelName = {
   Article: 'Article',
-  User: 'User'
+  User: 'User',
+  AvailabilitySlot: 'AvailabilitySlot',
+  Session: 'Session'
 };
 
 /**

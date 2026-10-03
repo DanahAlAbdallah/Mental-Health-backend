@@ -1,9 +1,14 @@
 import { Router } from "express";
 import { PrismaClient } from "../../generated/prisma";
-import { authenticate, requireRole, type AuthRequest } from "../middleware/auth";
+import {
+  authenticate,
+  requireRole,
+  type AuthRequest,
+} from "../middleware/auth";
 
 const router = Router();
 const prisma = new PrismaClient();
+const today = new Date().toISOString().split("T")[0] as string;
 
 // CREATE AVAILABILITY SLOT — therapist only, for their own account
 router.post(
@@ -13,19 +18,26 @@ router.post(
   async (req: AuthRequest, res) => {
     const { date, startTime, endTime } = req.body;
 
+    const today = new Date().toISOString().split("T")[0] as string;
+    if (date < today) {
+      return res.status(400).json({ error: "Cannot create a slot in the past" });
+    }
+
+    const existing = await prisma.availabilitySlot.findFirst({
+      where: { therapistId: req.user!.id, date, startTime },
+    });
+
+    if (existing) {
+      return res.status(400).json({ error: "You already have a slot at this time" });
+    }
+
     const slot = await prisma.availabilitySlot.create({
-      data: {
-        therapistId: req.user!.id,
-        date,
-        startTime,
-        endTime,
-      },
+      data: { therapistId: req.user!.id, date, startTime, endTime },
     });
 
     res.status(201).json(slot);
   }
 );
-
 // GET OPEN SLOTS FOR A THERAPIST — public, no login required
 router.get("/:therapistId", async (req, res) => {
   const slots = await prisma.availabilitySlot.findMany({
@@ -64,7 +76,7 @@ router.delete(
     });
 
     res.status(204).send();
-  }
+  },
 );
 
 export default router;

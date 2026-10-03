@@ -12,7 +12,20 @@ const prisma = new PrismaClient();
 
 // GET all articles
 router.get("/", async (req, res) => {
-  const articles = await prisma.article.findMany();
+  const { search } = req.query;
+
+  const articles = await prisma.article.findMany({
+    where: search
+      ? {
+          OR: [
+            { title: { contains: search as string } },
+            { content: { contains: search as string } },
+            { category: { contains: search as string } },
+          ],
+        }
+      : {},
+  });
+
   res.json(articles);
 });
 

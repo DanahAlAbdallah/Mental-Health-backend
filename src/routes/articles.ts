@@ -29,6 +29,26 @@ router.get("/", async (req, res) => {
   res.json(articles);
 });
 
+
+// GET latest 3 articles
+
+router.get("/latest", async (req, res) => {
+  try {
+    const articles = await prisma.article.findMany({
+      orderBy: {
+        createdAt: "desc",
+      },
+      take: 3,
+    });
+
+    res.json(articles);
+  } catch (error) {
+    console.error("Error fetching latest articles:", error);
+    res.status(500).json({ error: "Failed to fetch latest articles" });
+  }
+});
+
+
 // GET single article
 router.get("/:id", async (req, res) => {
   const article = await prisma.article.findUnique({

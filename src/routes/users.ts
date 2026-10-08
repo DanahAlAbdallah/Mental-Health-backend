@@ -17,6 +17,15 @@ router.get("/", authenticate, requireRole("admin"), async (req, res) => {
   res.json(users);
 });
 
+// GET ALL THERAPISTS ONLY
+router.get("/therapists", async (req, res) => {
+  const therapists = await prisma.user.findMany({
+    where: { role: "therapist" },
+    select: { id: true, name: true },
+  });
+  res.json(therapists);
+});
+
 // GET SINGLE USER
 router.get("/:id", authenticate, async (req: AuthRequest, res) => {
   const isOwnProfile = req.user!.id === req.params.id;

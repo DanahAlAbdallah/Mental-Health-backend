@@ -9,13 +9,18 @@ import {
 const router = Router();
 const prisma = new PrismaClient();
 
-// BOOK A SESSION — CLIENT ONLY BOOKS AN OPEN SLOT
+
+ // BOOK A SESSION — CLIENT ONLY
 router.post(
   "/",
   authenticate,
   requireRole("client"),
   async (req: AuthRequest, res) => {
     const { slotId } = req.body;
+
+    if (typeof slotId !== "string" || !slotId.trim()) {
+      return res.status(400).json({ error: "A valid slotId is required" });
+    }
 
     const slot = await prisma.availabilitySlot.findUnique({
       where: { id: slotId },
@@ -26,11 +31,27 @@ router.post(
     }
 
     if (slot.isBooked) {
-      return res.status(400).json({ error: "Slot is already booked" });
+      return res.status(409).json({ error: "Slot is already booked" });
     }
 
-    const [session] = await prisma.$transaction([
-      prisma.session.create({
+    const session = await prisma.$transaction(async (tx) => {
+      // Reserve the slot only if it is still available.
+      const reservation = await tx.availabilitySlot.updateMany({
+        where: {
+          id: slotId,
+          isBooked: false,
+        },
+        data: {
+          isBooked: true,
+        },
+      });
+
+      // Another request may have reserved it first.
+      if (reservation.count !== 1) {
+        return null;
+      }
+
+      return tx.session.create({
         data: {
           therapistId: slot.therapistId,
           patientId: req.user!.id,
@@ -40,16 +61,19 @@ router.post(
           endTime: slot.endTime,
           status: "pending",
         },
-      }),
-      prisma.availabilitySlot.update({
-        where: { id: slot.id },
-        data: { isBooked: true },
-      }),
-    ]);
+      });
+    });
 
-    res.status(201).json(session);
+    if (!session) {
+      return res.status(409).json({
+        error: "This slot is no longer available. Please choose another time.",
+      });
+    }
+
+    return res.status(201).json(session);
   },
 );
+
 
 // GET MY SESSIONS — CLIENT SEES THEIR OWN< THERAPIST SEES THEIR OWN AND ADMIN SEES ALL
 router.get("/", authenticate, async (req: AuthRequest, res) => {

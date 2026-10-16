@@ -10,25 +10,30 @@ import { PrismaClient } from "../../generated/prisma";
 const router = Router();
 const prisma = new PrismaClient();
 
-// GET all articles
+// GET all articles (with optional case-insensitive search)
 router.get("/", async (req, res) => {
-  const { search } = req.query;
+  const search = (req.query.search as string | undefined)?.trim();
 
-  const articles = await prisma.article.findMany({
-    where: search
-      ? {
-          OR: [
-            { title: { contains: search as string } },
-            { content: { contains: search as string } },
-            { category: { contains: search as string } },
-          ],
-        }
-      : {},
-  });
+  try {
+    const articles = await prisma.article.findMany({
+      where: search
+        ? {
+            OR: [
+              { title: { contains: search, mode: "insensitive" } },
+              { content: { contains: search, mode: "insensitive" } },
+              { category: { contains: search, mode: "insensitive" } },
+            ],
+          }
+        : {},
+      orderBy: { createdAt: "desc" },
+    });
 
-  res.json(articles);
+    res.json(articles);
+  } catch (err) {
+    console.error("Failed to fetch articles:", err);
+    res.status(500).json({ error: "Failed to fetch articles" });
+  }
 });
-
 
 // GET latest 3 articles
 
@@ -48,7 +53,6 @@ router.get("/latest", async (req, res) => {
   }
 });
 
-
 // GET single article
 router.get("/:id", async (req, res) => {
   const article = await prisma.article.findUnique({
@@ -60,7 +64,7 @@ router.get("/:id", async (req, res) => {
   res.json(article);
 });
 
-// CREATE article
+// CREATE ARTICLE
 router.post(
   "/",
   authenticate,
@@ -77,7 +81,7 @@ router.post(
   },
 );
 
-// UPDATE article
+// UPDATE ARTICLE
 router.put(
   "/:id",
   authenticate,
@@ -92,7 +96,7 @@ router.put(
   },
 );
 
-// DELETE article
+// DELETE ARTICLE
 router.delete(
   "/:id",
   authenticate,

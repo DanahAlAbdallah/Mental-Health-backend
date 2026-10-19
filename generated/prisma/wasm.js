@@ -114,6 +114,9 @@ Prisma.NullTypes = {
  */
 
 exports.Prisma.TransactionIsolationLevel = makeStrictEnum({
+  ReadUncommitted: 'ReadUncommitted',
+  ReadCommitted: 'ReadCommitted',
+  RepeatableRead: 'RepeatableRead',
   Serializable: 'Serializable'
 });
 
@@ -122,6 +125,7 @@ exports.Prisma.ArticleScalarFieldEnum = {
   title: 'title',
   content: 'content',
   author: 'author',
+  authorId: 'authorId',
   category: 'category',
   createdAt: 'createdAt'
 };
@@ -131,7 +135,21 @@ exports.Prisma.UserScalarFieldEnum = {
   name: 'name',
   email: 'email',
   password: 'password',
-  role: 'role'
+  role: 'role',
+  phone: 'phone',
+  avatarUrl: 'avatarUrl',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.TherapistProfileScalarFieldEnum = {
+  userId: 'userId',
+  bio: 'bio',
+  specialties: 'specialties',
+  languages: 'languages',
+  yearsOfExperience: 'yearsOfExperience',
+  sessionPrice: 'sessionPrice',
+  sessionType: 'sessionType',
+  location: 'location'
 };
 
 exports.Prisma.AvailabilitySlotScalarFieldEnum = {
@@ -161,10 +179,21 @@ exports.Prisma.SortOrder = {
   desc: 'desc'
 };
 
+exports.Prisma.QueryMode = {
+  default: 'default',
+  insensitive: 'insensitive'
+};
+
+exports.Prisma.NullsOrder = {
+  first: 'first',
+  last: 'last'
+};
+
 
 exports.Prisma.ModelName = {
   Article: 'Article',
   User: 'User',
+  TherapistProfile: 'TherapistProfile',
   AvailabilitySlot: 'AvailabilitySlot',
   Session: 'Session'
 };

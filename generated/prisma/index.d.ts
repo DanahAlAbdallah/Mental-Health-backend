@@ -24,6 +24,11 @@ export type Article = $Result.DefaultSelection<Prisma.$ArticlePayload>
  */
 export type User = $Result.DefaultSelection<Prisma.$UserPayload>
 /**
+ * Model TherapistProfile
+ * 
+ */
+export type TherapistProfile = $Result.DefaultSelection<Prisma.$TherapistProfilePayload>
+/**
  * Model AvailabilitySlot
  * 
  */
@@ -178,6 +183,16 @@ export class PrismaClient<
     * ```
     */
   get user(): Prisma.UserDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.therapistProfile`: Exposes CRUD operations for the **TherapistProfile** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more TherapistProfiles
+    * const therapistProfiles = await prisma.therapistProfile.findMany()
+    * ```
+    */
+  get therapistProfile(): Prisma.TherapistProfileDelegate<ExtArgs, ClientOptions>;
 
   /**
    * `prisma.availabilitySlot`: Exposes CRUD operations for the **AvailabilitySlot** model.
@@ -640,6 +655,7 @@ export namespace Prisma {
   export const ModelName: {
     Article: 'Article',
     User: 'User',
+    TherapistProfile: 'TherapistProfile',
     AvailabilitySlot: 'AvailabilitySlot',
     Session: 'Session'
   };
@@ -660,7 +676,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "article" | "user" | "availabilitySlot" | "session"
+      modelProps: "article" | "user" | "therapistProfile" | "availabilitySlot" | "session"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -809,6 +825,80 @@ export namespace Prisma {
           count: {
             args: Prisma.UserCountArgs<ExtArgs>
             result: $Utils.Optional<UserCountAggregateOutputType> | number
+          }
+        }
+      }
+      TherapistProfile: {
+        payload: Prisma.$TherapistProfilePayload<ExtArgs>
+        fields: Prisma.TherapistProfileFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.TherapistProfileFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TherapistProfilePayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.TherapistProfileFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TherapistProfilePayload>
+          }
+          findFirst: {
+            args: Prisma.TherapistProfileFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TherapistProfilePayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.TherapistProfileFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TherapistProfilePayload>
+          }
+          findMany: {
+            args: Prisma.TherapistProfileFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TherapistProfilePayload>[]
+          }
+          create: {
+            args: Prisma.TherapistProfileCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TherapistProfilePayload>
+          }
+          createMany: {
+            args: Prisma.TherapistProfileCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.TherapistProfileCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TherapistProfilePayload>[]
+          }
+          delete: {
+            args: Prisma.TherapistProfileDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TherapistProfilePayload>
+          }
+          update: {
+            args: Prisma.TherapistProfileUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TherapistProfilePayload>
+          }
+          deleteMany: {
+            args: Prisma.TherapistProfileDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.TherapistProfileUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.TherapistProfileUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TherapistProfilePayload>[]
+          }
+          upsert: {
+            args: Prisma.TherapistProfileUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TherapistProfilePayload>
+          }
+          aggregate: {
+            args: Prisma.TherapistProfileAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateTherapistProfile>
+          }
+          groupBy: {
+            args: Prisma.TherapistProfileGroupByArgs<ExtArgs>
+            result: $Utils.Optional<TherapistProfileGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.TherapistProfileCountArgs<ExtArgs>
+            result: $Utils.Optional<TherapistProfileCountAggregateOutputType> | number
           }
         }
       }
@@ -1046,6 +1136,7 @@ export namespace Prisma {
   export type GlobalOmitConfig = {
     article?: ArticleOmit
     user?: UserOmit
+    therapistProfile?: TherapistProfileOmit
     availabilitySlot?: AvailabilitySlotOmit
     session?: SessionOmit
   }
@@ -1137,6 +1228,36 @@ export namespace Prisma {
    */
 
 
+  /**
+   * Count Type UserCountOutputType
+   */
+
+  export type UserCountOutputType = {
+    articles: number
+  }
+
+  export type UserCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    articles?: boolean | UserCountOutputTypeCountArticlesArgs
+  }
+
+  // Custom InputTypes
+  /**
+   * UserCountOutputType without action
+   */
+  export type UserCountOutputTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UserCountOutputType
+     */
+    select?: UserCountOutputTypeSelect<ExtArgs> | null
+  }
+
+  /**
+   * UserCountOutputType without action
+   */
+  export type UserCountOutputTypeCountArticlesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ArticleWhereInput
+  }
+
 
   /**
    * Models
@@ -1157,6 +1278,7 @@ export namespace Prisma {
     title: string | null
     content: string | null
     author: string | null
+    authorId: string | null
     category: string | null
     createdAt: Date | null
   }
@@ -1166,6 +1288,7 @@ export namespace Prisma {
     title: string | null
     content: string | null
     author: string | null
+    authorId: string | null
     category: string | null
     createdAt: Date | null
   }
@@ -1175,6 +1298,7 @@ export namespace Prisma {
     title: number
     content: number
     author: number
+    authorId: number
     category: number
     createdAt: number
     _all: number
@@ -1186,6 +1310,7 @@ export namespace Prisma {
     title?: true
     content?: true
     author?: true
+    authorId?: true
     category?: true
     createdAt?: true
   }
@@ -1195,6 +1320,7 @@ export namespace Prisma {
     title?: true
     content?: true
     author?: true
+    authorId?: true
     category?: true
     createdAt?: true
   }
@@ -1204,6 +1330,7 @@ export namespace Prisma {
     title?: true
     content?: true
     author?: true
+    authorId?: true
     category?: true
     createdAt?: true
     _all?: true
@@ -1286,6 +1413,7 @@ export namespace Prisma {
     title: string
     content: string
     author: string
+    authorId: string
     category: string
     createdAt: Date
     _count: ArticleCountAggregateOutputType | null
@@ -1312,8 +1440,10 @@ export namespace Prisma {
     title?: boolean
     content?: boolean
     author?: boolean
+    authorId?: boolean
     category?: boolean
     createdAt?: boolean
+    user?: boolean | UserDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["article"]>
 
   export type ArticleSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -1321,8 +1451,10 @@ export namespace Prisma {
     title?: boolean
     content?: boolean
     author?: boolean
+    authorId?: boolean
     category?: boolean
     createdAt?: boolean
+    user?: boolean | UserDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["article"]>
 
   export type ArticleSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -1330,8 +1462,10 @@ export namespace Prisma {
     title?: boolean
     content?: boolean
     author?: boolean
+    authorId?: boolean
     category?: boolean
     createdAt?: boolean
+    user?: boolean | UserDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["article"]>
 
   export type ArticleSelectScalar = {
@@ -1339,20 +1473,33 @@ export namespace Prisma {
     title?: boolean
     content?: boolean
     author?: boolean
+    authorId?: boolean
     category?: boolean
     createdAt?: boolean
   }
 
-  export type ArticleOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "title" | "content" | "author" | "category" | "createdAt", ExtArgs["result"]["article"]>
+  export type ArticleOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "title" | "content" | "author" | "authorId" | "category" | "createdAt", ExtArgs["result"]["article"]>
+  export type ArticleInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }
+  export type ArticleIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }
+  export type ArticleIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }
 
   export type $ArticlePayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "Article"
-    objects: {}
+    objects: {
+      user: Prisma.$UserPayload<ExtArgs>
+    }
     scalars: $Extensions.GetPayloadResult<{
       id: string
       title: string
       content: string
       author: string
+      authorId: string
       category: string
       createdAt: Date
     }, ExtArgs["result"]["article"]>
@@ -1749,6 +1896,7 @@ export namespace Prisma {
    */
   export interface Prisma__ArticleClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
+    user<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1782,6 +1930,7 @@ export namespace Prisma {
     readonly title: FieldRef<"Article", 'String'>
     readonly content: FieldRef<"Article", 'String'>
     readonly author: FieldRef<"Article", 'String'>
+    readonly authorId: FieldRef<"Article", 'String'>
     readonly category: FieldRef<"Article", 'String'>
     readonly createdAt: FieldRef<"Article", 'DateTime'>
   }
@@ -1801,6 +1950,10 @@ export namespace Prisma {
      */
     omit?: ArticleOmit<ExtArgs> | null
     /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ArticleInclude<ExtArgs> | null
+    /**
      * Filter, which Article to fetch.
      */
     where: ArticleWhereUniqueInput
@@ -1819,6 +1972,10 @@ export namespace Prisma {
      */
     omit?: ArticleOmit<ExtArgs> | null
     /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ArticleInclude<ExtArgs> | null
+    /**
      * Filter, which Article to fetch.
      */
     where: ArticleWhereUniqueInput
@@ -1836,6 +1993,10 @@ export namespace Prisma {
      * Omit specific fields from the Article
      */
     omit?: ArticleOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ArticleInclude<ExtArgs> | null
     /**
      * Filter, which Article to fetch.
      */
@@ -1885,6 +2046,10 @@ export namespace Prisma {
      */
     omit?: ArticleOmit<ExtArgs> | null
     /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ArticleInclude<ExtArgs> | null
+    /**
      * Filter, which Article to fetch.
      */
     where?: ArticleWhereInput
@@ -1933,6 +2098,10 @@ export namespace Prisma {
      */
     omit?: ArticleOmit<ExtArgs> | null
     /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ArticleInclude<ExtArgs> | null
+    /**
      * Filter, which Articles to fetch.
      */
     where?: ArticleWhereInput
@@ -1976,6 +2145,10 @@ export namespace Prisma {
      */
     omit?: ArticleOmit<ExtArgs> | null
     /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ArticleInclude<ExtArgs> | null
+    /**
      * The data needed to create a Article.
      */
     data: XOR<ArticleCreateInput, ArticleUncheckedCreateInput>
@@ -1989,6 +2162,7 @@ export namespace Prisma {
      * The data used to create many Articles.
      */
     data: ArticleCreateManyInput | ArticleCreateManyInput[]
+    skipDuplicates?: boolean
   }
 
   /**
@@ -2007,6 +2181,11 @@ export namespace Prisma {
      * The data used to create many Articles.
      */
     data: ArticleCreateManyInput | ArticleCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ArticleIncludeCreateManyAndReturn<ExtArgs> | null
   }
 
   /**
@@ -2021,6 +2200,10 @@ export namespace Prisma {
      * Omit specific fields from the Article
      */
     omit?: ArticleOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ArticleInclude<ExtArgs> | null
     /**
      * The data needed to update a Article.
      */
@@ -2073,6 +2256,10 @@ export namespace Prisma {
      * Limit how many Articles to update.
      */
     limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ArticleIncludeUpdateManyAndReturn<ExtArgs> | null
   }
 
   /**
@@ -2087,6 +2274,10 @@ export namespace Prisma {
      * Omit specific fields from the Article
      */
     omit?: ArticleOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ArticleInclude<ExtArgs> | null
     /**
      * The filter to search for the Article to update in case it exists.
      */
@@ -2113,6 +2304,10 @@ export namespace Prisma {
      * Omit specific fields from the Article
      */
     omit?: ArticleOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ArticleInclude<ExtArgs> | null
     /**
      * Filter which Article to delete.
      */
@@ -2145,6 +2340,10 @@ export namespace Prisma {
      * Omit specific fields from the Article
      */
     omit?: ArticleOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ArticleInclude<ExtArgs> | null
   }
 
 
@@ -2164,6 +2363,9 @@ export namespace Prisma {
     email: string | null
     password: string | null
     role: string | null
+    phone: string | null
+    avatarUrl: string | null
+    createdAt: Date | null
   }
 
   export type UserMaxAggregateOutputType = {
@@ -2172,6 +2374,9 @@ export namespace Prisma {
     email: string | null
     password: string | null
     role: string | null
+    phone: string | null
+    avatarUrl: string | null
+    createdAt: Date | null
   }
 
   export type UserCountAggregateOutputType = {
@@ -2180,6 +2385,9 @@ export namespace Prisma {
     email: number
     password: number
     role: number
+    phone: number
+    avatarUrl: number
+    createdAt: number
     _all: number
   }
 
@@ -2190,6 +2398,9 @@ export namespace Prisma {
     email?: true
     password?: true
     role?: true
+    phone?: true
+    avatarUrl?: true
+    createdAt?: true
   }
 
   export type UserMaxAggregateInputType = {
@@ -2198,6 +2409,9 @@ export namespace Prisma {
     email?: true
     password?: true
     role?: true
+    phone?: true
+    avatarUrl?: true
+    createdAt?: true
   }
 
   export type UserCountAggregateInputType = {
@@ -2206,6 +2420,9 @@ export namespace Prisma {
     email?: true
     password?: true
     role?: true
+    phone?: true
+    avatarUrl?: true
+    createdAt?: true
     _all?: true
   }
 
@@ -2287,6 +2504,9 @@ export namespace Prisma {
     email: string
     password: string
     role: string
+    phone: string | null
+    avatarUrl: string | null
+    createdAt: Date
     _count: UserCountAggregateOutputType | null
     _min: UserMinAggregateOutputType | null
     _max: UserMaxAggregateOutputType | null
@@ -2312,6 +2532,12 @@ export namespace Prisma {
     email?: boolean
     password?: boolean
     role?: boolean
+    phone?: boolean
+    avatarUrl?: boolean
+    createdAt?: boolean
+    therapistProfile?: boolean | User$therapistProfileArgs<ExtArgs>
+    articles?: boolean | User$articlesArgs<ExtArgs>
+    _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["user"]>
 
   export type UserSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -2320,6 +2546,9 @@ export namespace Prisma {
     email?: boolean
     password?: boolean
     role?: boolean
+    phone?: boolean
+    avatarUrl?: boolean
+    createdAt?: boolean
   }, ExtArgs["result"]["user"]>
 
   export type UserSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -2328,6 +2557,9 @@ export namespace Prisma {
     email?: boolean
     password?: boolean
     role?: boolean
+    phone?: boolean
+    avatarUrl?: boolean
+    createdAt?: boolean
   }, ExtArgs["result"]["user"]>
 
   export type UserSelectScalar = {
@@ -2336,19 +2568,35 @@ export namespace Prisma {
     email?: boolean
     password?: boolean
     role?: boolean
+    phone?: boolean
+    avatarUrl?: boolean
+    createdAt?: boolean
   }
 
-  export type UserOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "email" | "password" | "role", ExtArgs["result"]["user"]>
+  export type UserOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "email" | "password" | "role" | "phone" | "avatarUrl" | "createdAt", ExtArgs["result"]["user"]>
+  export type UserInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    therapistProfile?: boolean | User$therapistProfileArgs<ExtArgs>
+    articles?: boolean | User$articlesArgs<ExtArgs>
+    _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
+  }
+  export type UserIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
+  export type UserIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
 
   export type $UserPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "User"
-    objects: {}
+    objects: {
+      therapistProfile: Prisma.$TherapistProfilePayload<ExtArgs> | null
+      articles: Prisma.$ArticlePayload<ExtArgs>[]
+    }
     scalars: $Extensions.GetPayloadResult<{
       id: string
       name: string
       email: string
       password: string
       role: string
+      phone: string | null
+      avatarUrl: string | null
+      createdAt: Date
     }, ExtArgs["result"]["user"]>
     composites: {}
   }
@@ -2743,6 +2991,8 @@ export namespace Prisma {
    */
   export interface Prisma__UserClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
+    therapistProfile<T extends User$therapistProfileArgs<ExtArgs> = {}>(args?: Subset<T, User$therapistProfileArgs<ExtArgs>>): Prisma__TherapistProfileClient<$Result.GetResult<Prisma.$TherapistProfilePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    articles<T extends User$articlesArgs<ExtArgs> = {}>(args?: Subset<T, User$articlesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ArticlePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -2777,6 +3027,9 @@ export namespace Prisma {
     readonly email: FieldRef<"User", 'String'>
     readonly password: FieldRef<"User", 'String'>
     readonly role: FieldRef<"User", 'String'>
+    readonly phone: FieldRef<"User", 'String'>
+    readonly avatarUrl: FieldRef<"User", 'String'>
+    readonly createdAt: FieldRef<"User", 'DateTime'>
   }
     
 
@@ -2793,6 +3046,10 @@ export namespace Prisma {
      * Omit specific fields from the User
      */
     omit?: UserOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserInclude<ExtArgs> | null
     /**
      * Filter, which User to fetch.
      */
@@ -2812,6 +3069,10 @@ export namespace Prisma {
      */
     omit?: UserOmit<ExtArgs> | null
     /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserInclude<ExtArgs> | null
+    /**
      * Filter, which User to fetch.
      */
     where: UserWhereUniqueInput
@@ -2829,6 +3090,10 @@ export namespace Prisma {
      * Omit specific fields from the User
      */
     omit?: UserOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserInclude<ExtArgs> | null
     /**
      * Filter, which User to fetch.
      */
@@ -2878,6 +3143,10 @@ export namespace Prisma {
      */
     omit?: UserOmit<ExtArgs> | null
     /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserInclude<ExtArgs> | null
+    /**
      * Filter, which User to fetch.
      */
     where?: UserWhereInput
@@ -2926,6 +3195,10 @@ export namespace Prisma {
      */
     omit?: UserOmit<ExtArgs> | null
     /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserInclude<ExtArgs> | null
+    /**
      * Filter, which Users to fetch.
      */
     where?: UserWhereInput
@@ -2969,6 +3242,10 @@ export namespace Prisma {
      */
     omit?: UserOmit<ExtArgs> | null
     /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserInclude<ExtArgs> | null
+    /**
      * The data needed to create a User.
      */
     data: XOR<UserCreateInput, UserUncheckedCreateInput>
@@ -2982,6 +3259,7 @@ export namespace Prisma {
      * The data used to create many Users.
      */
     data: UserCreateManyInput | UserCreateManyInput[]
+    skipDuplicates?: boolean
   }
 
   /**
@@ -3000,6 +3278,7 @@ export namespace Prisma {
      * The data used to create many Users.
      */
     data: UserCreateManyInput | UserCreateManyInput[]
+    skipDuplicates?: boolean
   }
 
   /**
@@ -3014,6 +3293,10 @@ export namespace Prisma {
      * Omit specific fields from the User
      */
     omit?: UserOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserInclude<ExtArgs> | null
     /**
      * The data needed to update a User.
      */
@@ -3081,6 +3364,10 @@ export namespace Prisma {
      */
     omit?: UserOmit<ExtArgs> | null
     /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserInclude<ExtArgs> | null
+    /**
      * The filter to search for the User to update in case it exists.
      */
     where: UserWhereUniqueInput
@@ -3107,6 +3394,10 @@ export namespace Prisma {
      */
     omit?: UserOmit<ExtArgs> | null
     /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserInclude<ExtArgs> | null
+    /**
      * Filter which User to delete.
      */
     where: UserWhereUniqueInput
@@ -3127,6 +3418,49 @@ export namespace Prisma {
   }
 
   /**
+   * User.therapistProfile
+   */
+  export type User$therapistProfileArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TherapistProfile
+     */
+    select?: TherapistProfileSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TherapistProfile
+     */
+    omit?: TherapistProfileOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TherapistProfileInclude<ExtArgs> | null
+    where?: TherapistProfileWhereInput
+  }
+
+  /**
+   * User.articles
+   */
+  export type User$articlesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Article
+     */
+    select?: ArticleSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Article
+     */
+    omit?: ArticleOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ArticleInclude<ExtArgs> | null
+    where?: ArticleWhereInput
+    orderBy?: ArticleOrderByWithRelationInput | ArticleOrderByWithRelationInput[]
+    cursor?: ArticleWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: ArticleScalarFieldEnum | ArticleScalarFieldEnum[]
+  }
+
+  /**
    * User without action
    */
   export type UserDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -3138,6 +3472,1137 @@ export namespace Prisma {
      * Omit specific fields from the User
      */
     omit?: UserOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model TherapistProfile
+   */
+
+  export type AggregateTherapistProfile = {
+    _count: TherapistProfileCountAggregateOutputType | null
+    _avg: TherapistProfileAvgAggregateOutputType | null
+    _sum: TherapistProfileSumAggregateOutputType | null
+    _min: TherapistProfileMinAggregateOutputType | null
+    _max: TherapistProfileMaxAggregateOutputType | null
+  }
+
+  export type TherapistProfileAvgAggregateOutputType = {
+    yearsOfExperience: number | null
+    sessionPrice: number | null
+  }
+
+  export type TherapistProfileSumAggregateOutputType = {
+    yearsOfExperience: number | null
+    sessionPrice: number | null
+  }
+
+  export type TherapistProfileMinAggregateOutputType = {
+    userId: string | null
+    bio: string | null
+    yearsOfExperience: number | null
+    sessionPrice: number | null
+    sessionType: string | null
+    location: string | null
+  }
+
+  export type TherapistProfileMaxAggregateOutputType = {
+    userId: string | null
+    bio: string | null
+    yearsOfExperience: number | null
+    sessionPrice: number | null
+    sessionType: string | null
+    location: string | null
+  }
+
+  export type TherapistProfileCountAggregateOutputType = {
+    userId: number
+    bio: number
+    specialties: number
+    languages: number
+    yearsOfExperience: number
+    sessionPrice: number
+    sessionType: number
+    location: number
+    _all: number
+  }
+
+
+  export type TherapistProfileAvgAggregateInputType = {
+    yearsOfExperience?: true
+    sessionPrice?: true
+  }
+
+  export type TherapistProfileSumAggregateInputType = {
+    yearsOfExperience?: true
+    sessionPrice?: true
+  }
+
+  export type TherapistProfileMinAggregateInputType = {
+    userId?: true
+    bio?: true
+    yearsOfExperience?: true
+    sessionPrice?: true
+    sessionType?: true
+    location?: true
+  }
+
+  export type TherapistProfileMaxAggregateInputType = {
+    userId?: true
+    bio?: true
+    yearsOfExperience?: true
+    sessionPrice?: true
+    sessionType?: true
+    location?: true
+  }
+
+  export type TherapistProfileCountAggregateInputType = {
+    userId?: true
+    bio?: true
+    specialties?: true
+    languages?: true
+    yearsOfExperience?: true
+    sessionPrice?: true
+    sessionType?: true
+    location?: true
+    _all?: true
+  }
+
+  export type TherapistProfileAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which TherapistProfile to aggregate.
+     */
+    where?: TherapistProfileWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of TherapistProfiles to fetch.
+     */
+    orderBy?: TherapistProfileOrderByWithRelationInput | TherapistProfileOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: TherapistProfileWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` TherapistProfiles from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` TherapistProfiles.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned TherapistProfiles
+    **/
+    _count?: true | TherapistProfileCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: TherapistProfileAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: TherapistProfileSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: TherapistProfileMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: TherapistProfileMaxAggregateInputType
+  }
+
+  export type GetTherapistProfileAggregateType<T extends TherapistProfileAggregateArgs> = {
+        [P in keyof T & keyof AggregateTherapistProfile]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateTherapistProfile[P]>
+      : GetScalarType<T[P], AggregateTherapistProfile[P]>
+  }
+
+
+
+
+  export type TherapistProfileGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: TherapistProfileWhereInput
+    orderBy?: TherapistProfileOrderByWithAggregationInput | TherapistProfileOrderByWithAggregationInput[]
+    by: TherapistProfileScalarFieldEnum[] | TherapistProfileScalarFieldEnum
+    having?: TherapistProfileScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: TherapistProfileCountAggregateInputType | true
+    _avg?: TherapistProfileAvgAggregateInputType
+    _sum?: TherapistProfileSumAggregateInputType
+    _min?: TherapistProfileMinAggregateInputType
+    _max?: TherapistProfileMaxAggregateInputType
+  }
+
+  export type TherapistProfileGroupByOutputType = {
+    userId: string
+    bio: string
+    specialties: string[]
+    languages: string[]
+    yearsOfExperience: number | null
+    sessionPrice: number | null
+    sessionType: string
+    location: string | null
+    _count: TherapistProfileCountAggregateOutputType | null
+    _avg: TherapistProfileAvgAggregateOutputType | null
+    _sum: TherapistProfileSumAggregateOutputType | null
+    _min: TherapistProfileMinAggregateOutputType | null
+    _max: TherapistProfileMaxAggregateOutputType | null
+  }
+
+  type GetTherapistProfileGroupByPayload<T extends TherapistProfileGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<TherapistProfileGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof TherapistProfileGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], TherapistProfileGroupByOutputType[P]>
+            : GetScalarType<T[P], TherapistProfileGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type TherapistProfileSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    userId?: boolean
+    bio?: boolean
+    specialties?: boolean
+    languages?: boolean
+    yearsOfExperience?: boolean
+    sessionPrice?: boolean
+    sessionType?: boolean
+    location?: boolean
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["therapistProfile"]>
+
+  export type TherapistProfileSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    userId?: boolean
+    bio?: boolean
+    specialties?: boolean
+    languages?: boolean
+    yearsOfExperience?: boolean
+    sessionPrice?: boolean
+    sessionType?: boolean
+    location?: boolean
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["therapistProfile"]>
+
+  export type TherapistProfileSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    userId?: boolean
+    bio?: boolean
+    specialties?: boolean
+    languages?: boolean
+    yearsOfExperience?: boolean
+    sessionPrice?: boolean
+    sessionType?: boolean
+    location?: boolean
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["therapistProfile"]>
+
+  export type TherapistProfileSelectScalar = {
+    userId?: boolean
+    bio?: boolean
+    specialties?: boolean
+    languages?: boolean
+    yearsOfExperience?: boolean
+    sessionPrice?: boolean
+    sessionType?: boolean
+    location?: boolean
+  }
+
+  export type TherapistProfileOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"userId" | "bio" | "specialties" | "languages" | "yearsOfExperience" | "sessionPrice" | "sessionType" | "location", ExtArgs["result"]["therapistProfile"]>
+  export type TherapistProfileInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }
+  export type TherapistProfileIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }
+  export type TherapistProfileIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }
+
+  export type $TherapistProfilePayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "TherapistProfile"
+    objects: {
+      user: Prisma.$UserPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      userId: string
+      bio: string
+      specialties: string[]
+      languages: string[]
+      yearsOfExperience: number | null
+      sessionPrice: number | null
+      sessionType: string
+      location: string | null
+    }, ExtArgs["result"]["therapistProfile"]>
+    composites: {}
+  }
+
+  type TherapistProfileGetPayload<S extends boolean | null | undefined | TherapistProfileDefaultArgs> = $Result.GetResult<Prisma.$TherapistProfilePayload, S>
+
+  type TherapistProfileCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<TherapistProfileFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: TherapistProfileCountAggregateInputType | true
+    }
+
+  export interface TherapistProfileDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['TherapistProfile'], meta: { name: 'TherapistProfile' } }
+    /**
+     * Find zero or one TherapistProfile that matches the filter.
+     * @param {TherapistProfileFindUniqueArgs} args - Arguments to find a TherapistProfile
+     * @example
+     * // Get one TherapistProfile
+     * const therapistProfile = await prisma.therapistProfile.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends TherapistProfileFindUniqueArgs>(args: SelectSubset<T, TherapistProfileFindUniqueArgs<ExtArgs>>): Prisma__TherapistProfileClient<$Result.GetResult<Prisma.$TherapistProfilePayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one TherapistProfile that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {TherapistProfileFindUniqueOrThrowArgs} args - Arguments to find a TherapistProfile
+     * @example
+     * // Get one TherapistProfile
+     * const therapistProfile = await prisma.therapistProfile.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends TherapistProfileFindUniqueOrThrowArgs>(args: SelectSubset<T, TherapistProfileFindUniqueOrThrowArgs<ExtArgs>>): Prisma__TherapistProfileClient<$Result.GetResult<Prisma.$TherapistProfilePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first TherapistProfile that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TherapistProfileFindFirstArgs} args - Arguments to find a TherapistProfile
+     * @example
+     * // Get one TherapistProfile
+     * const therapistProfile = await prisma.therapistProfile.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends TherapistProfileFindFirstArgs>(args?: SelectSubset<T, TherapistProfileFindFirstArgs<ExtArgs>>): Prisma__TherapistProfileClient<$Result.GetResult<Prisma.$TherapistProfilePayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first TherapistProfile that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TherapistProfileFindFirstOrThrowArgs} args - Arguments to find a TherapistProfile
+     * @example
+     * // Get one TherapistProfile
+     * const therapistProfile = await prisma.therapistProfile.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends TherapistProfileFindFirstOrThrowArgs>(args?: SelectSubset<T, TherapistProfileFindFirstOrThrowArgs<ExtArgs>>): Prisma__TherapistProfileClient<$Result.GetResult<Prisma.$TherapistProfilePayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more TherapistProfiles that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TherapistProfileFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all TherapistProfiles
+     * const therapistProfiles = await prisma.therapistProfile.findMany()
+     * 
+     * // Get first 10 TherapistProfiles
+     * const therapistProfiles = await prisma.therapistProfile.findMany({ take: 10 })
+     * 
+     * // Only select the `userId`
+     * const therapistProfileWithUserIdOnly = await prisma.therapistProfile.findMany({ select: { userId: true } })
+     * 
+     */
+    findMany<T extends TherapistProfileFindManyArgs>(args?: SelectSubset<T, TherapistProfileFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TherapistProfilePayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a TherapistProfile.
+     * @param {TherapistProfileCreateArgs} args - Arguments to create a TherapistProfile.
+     * @example
+     * // Create one TherapistProfile
+     * const TherapistProfile = await prisma.therapistProfile.create({
+     *   data: {
+     *     // ... data to create a TherapistProfile
+     *   }
+     * })
+     * 
+     */
+    create<T extends TherapistProfileCreateArgs>(args: SelectSubset<T, TherapistProfileCreateArgs<ExtArgs>>): Prisma__TherapistProfileClient<$Result.GetResult<Prisma.$TherapistProfilePayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many TherapistProfiles.
+     * @param {TherapistProfileCreateManyArgs} args - Arguments to create many TherapistProfiles.
+     * @example
+     * // Create many TherapistProfiles
+     * const therapistProfile = await prisma.therapistProfile.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends TherapistProfileCreateManyArgs>(args?: SelectSubset<T, TherapistProfileCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many TherapistProfiles and returns the data saved in the database.
+     * @param {TherapistProfileCreateManyAndReturnArgs} args - Arguments to create many TherapistProfiles.
+     * @example
+     * // Create many TherapistProfiles
+     * const therapistProfile = await prisma.therapistProfile.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many TherapistProfiles and only return the `userId`
+     * const therapistProfileWithUserIdOnly = await prisma.therapistProfile.createManyAndReturn({
+     *   select: { userId: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends TherapistProfileCreateManyAndReturnArgs>(args?: SelectSubset<T, TherapistProfileCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TherapistProfilePayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a TherapistProfile.
+     * @param {TherapistProfileDeleteArgs} args - Arguments to delete one TherapistProfile.
+     * @example
+     * // Delete one TherapistProfile
+     * const TherapistProfile = await prisma.therapistProfile.delete({
+     *   where: {
+     *     // ... filter to delete one TherapistProfile
+     *   }
+     * })
+     * 
+     */
+    delete<T extends TherapistProfileDeleteArgs>(args: SelectSubset<T, TherapistProfileDeleteArgs<ExtArgs>>): Prisma__TherapistProfileClient<$Result.GetResult<Prisma.$TherapistProfilePayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one TherapistProfile.
+     * @param {TherapistProfileUpdateArgs} args - Arguments to update one TherapistProfile.
+     * @example
+     * // Update one TherapistProfile
+     * const therapistProfile = await prisma.therapistProfile.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends TherapistProfileUpdateArgs>(args: SelectSubset<T, TherapistProfileUpdateArgs<ExtArgs>>): Prisma__TherapistProfileClient<$Result.GetResult<Prisma.$TherapistProfilePayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more TherapistProfiles.
+     * @param {TherapistProfileDeleteManyArgs} args - Arguments to filter TherapistProfiles to delete.
+     * @example
+     * // Delete a few TherapistProfiles
+     * const { count } = await prisma.therapistProfile.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends TherapistProfileDeleteManyArgs>(args?: SelectSubset<T, TherapistProfileDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more TherapistProfiles.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TherapistProfileUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many TherapistProfiles
+     * const therapistProfile = await prisma.therapistProfile.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends TherapistProfileUpdateManyArgs>(args: SelectSubset<T, TherapistProfileUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more TherapistProfiles and returns the data updated in the database.
+     * @param {TherapistProfileUpdateManyAndReturnArgs} args - Arguments to update many TherapistProfiles.
+     * @example
+     * // Update many TherapistProfiles
+     * const therapistProfile = await prisma.therapistProfile.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more TherapistProfiles and only return the `userId`
+     * const therapistProfileWithUserIdOnly = await prisma.therapistProfile.updateManyAndReturn({
+     *   select: { userId: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends TherapistProfileUpdateManyAndReturnArgs>(args: SelectSubset<T, TherapistProfileUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TherapistProfilePayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one TherapistProfile.
+     * @param {TherapistProfileUpsertArgs} args - Arguments to update or create a TherapistProfile.
+     * @example
+     * // Update or create a TherapistProfile
+     * const therapistProfile = await prisma.therapistProfile.upsert({
+     *   create: {
+     *     // ... data to create a TherapistProfile
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the TherapistProfile we want to update
+     *   }
+     * })
+     */
+    upsert<T extends TherapistProfileUpsertArgs>(args: SelectSubset<T, TherapistProfileUpsertArgs<ExtArgs>>): Prisma__TherapistProfileClient<$Result.GetResult<Prisma.$TherapistProfilePayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of TherapistProfiles.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TherapistProfileCountArgs} args - Arguments to filter TherapistProfiles to count.
+     * @example
+     * // Count the number of TherapistProfiles
+     * const count = await prisma.therapistProfile.count({
+     *   where: {
+     *     // ... the filter for the TherapistProfiles we want to count
+     *   }
+     * })
+    **/
+    count<T extends TherapistProfileCountArgs>(
+      args?: Subset<T, TherapistProfileCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], TherapistProfileCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a TherapistProfile.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TherapistProfileAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends TherapistProfileAggregateArgs>(args: Subset<T, TherapistProfileAggregateArgs>): Prisma.PrismaPromise<GetTherapistProfileAggregateType<T>>
+
+    /**
+     * Group by TherapistProfile.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TherapistProfileGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends TherapistProfileGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: TherapistProfileGroupByArgs['orderBy'] }
+        : { orderBy?: TherapistProfileGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, TherapistProfileGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetTherapistProfileGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the TherapistProfile model
+   */
+  readonly fields: TherapistProfileFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for TherapistProfile.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__TherapistProfileClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    user<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the TherapistProfile model
+   */
+  interface TherapistProfileFieldRefs {
+    readonly userId: FieldRef<"TherapistProfile", 'String'>
+    readonly bio: FieldRef<"TherapistProfile", 'String'>
+    readonly specialties: FieldRef<"TherapistProfile", 'String[]'>
+    readonly languages: FieldRef<"TherapistProfile", 'String[]'>
+    readonly yearsOfExperience: FieldRef<"TherapistProfile", 'Int'>
+    readonly sessionPrice: FieldRef<"TherapistProfile", 'Int'>
+    readonly sessionType: FieldRef<"TherapistProfile", 'String'>
+    readonly location: FieldRef<"TherapistProfile", 'String'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * TherapistProfile findUnique
+   */
+  export type TherapistProfileFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TherapistProfile
+     */
+    select?: TherapistProfileSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TherapistProfile
+     */
+    omit?: TherapistProfileOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TherapistProfileInclude<ExtArgs> | null
+    /**
+     * Filter, which TherapistProfile to fetch.
+     */
+    where: TherapistProfileWhereUniqueInput
+  }
+
+  /**
+   * TherapistProfile findUniqueOrThrow
+   */
+  export type TherapistProfileFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TherapistProfile
+     */
+    select?: TherapistProfileSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TherapistProfile
+     */
+    omit?: TherapistProfileOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TherapistProfileInclude<ExtArgs> | null
+    /**
+     * Filter, which TherapistProfile to fetch.
+     */
+    where: TherapistProfileWhereUniqueInput
+  }
+
+  /**
+   * TherapistProfile findFirst
+   */
+  export type TherapistProfileFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TherapistProfile
+     */
+    select?: TherapistProfileSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TherapistProfile
+     */
+    omit?: TherapistProfileOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TherapistProfileInclude<ExtArgs> | null
+    /**
+     * Filter, which TherapistProfile to fetch.
+     */
+    where?: TherapistProfileWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of TherapistProfiles to fetch.
+     */
+    orderBy?: TherapistProfileOrderByWithRelationInput | TherapistProfileOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for TherapistProfiles.
+     */
+    cursor?: TherapistProfileWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` TherapistProfiles from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` TherapistProfiles.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of TherapistProfiles.
+     */
+    distinct?: TherapistProfileScalarFieldEnum | TherapistProfileScalarFieldEnum[]
+  }
+
+  /**
+   * TherapistProfile findFirstOrThrow
+   */
+  export type TherapistProfileFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TherapistProfile
+     */
+    select?: TherapistProfileSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TherapistProfile
+     */
+    omit?: TherapistProfileOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TherapistProfileInclude<ExtArgs> | null
+    /**
+     * Filter, which TherapistProfile to fetch.
+     */
+    where?: TherapistProfileWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of TherapistProfiles to fetch.
+     */
+    orderBy?: TherapistProfileOrderByWithRelationInput | TherapistProfileOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for TherapistProfiles.
+     */
+    cursor?: TherapistProfileWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` TherapistProfiles from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` TherapistProfiles.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of TherapistProfiles.
+     */
+    distinct?: TherapistProfileScalarFieldEnum | TherapistProfileScalarFieldEnum[]
+  }
+
+  /**
+   * TherapistProfile findMany
+   */
+  export type TherapistProfileFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TherapistProfile
+     */
+    select?: TherapistProfileSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TherapistProfile
+     */
+    omit?: TherapistProfileOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TherapistProfileInclude<ExtArgs> | null
+    /**
+     * Filter, which TherapistProfiles to fetch.
+     */
+    where?: TherapistProfileWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of TherapistProfiles to fetch.
+     */
+    orderBy?: TherapistProfileOrderByWithRelationInput | TherapistProfileOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing TherapistProfiles.
+     */
+    cursor?: TherapistProfileWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` TherapistProfiles from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` TherapistProfiles.
+     */
+    skip?: number
+    distinct?: TherapistProfileScalarFieldEnum | TherapistProfileScalarFieldEnum[]
+  }
+
+  /**
+   * TherapistProfile create
+   */
+  export type TherapistProfileCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TherapistProfile
+     */
+    select?: TherapistProfileSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TherapistProfile
+     */
+    omit?: TherapistProfileOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TherapistProfileInclude<ExtArgs> | null
+    /**
+     * The data needed to create a TherapistProfile.
+     */
+    data: XOR<TherapistProfileCreateInput, TherapistProfileUncheckedCreateInput>
+  }
+
+  /**
+   * TherapistProfile createMany
+   */
+  export type TherapistProfileCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many TherapistProfiles.
+     */
+    data: TherapistProfileCreateManyInput | TherapistProfileCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * TherapistProfile createManyAndReturn
+   */
+  export type TherapistProfileCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TherapistProfile
+     */
+    select?: TherapistProfileSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the TherapistProfile
+     */
+    omit?: TherapistProfileOmit<ExtArgs> | null
+    /**
+     * The data used to create many TherapistProfiles.
+     */
+    data: TherapistProfileCreateManyInput | TherapistProfileCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TherapistProfileIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * TherapistProfile update
+   */
+  export type TherapistProfileUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TherapistProfile
+     */
+    select?: TherapistProfileSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TherapistProfile
+     */
+    omit?: TherapistProfileOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TherapistProfileInclude<ExtArgs> | null
+    /**
+     * The data needed to update a TherapistProfile.
+     */
+    data: XOR<TherapistProfileUpdateInput, TherapistProfileUncheckedUpdateInput>
+    /**
+     * Choose, which TherapistProfile to update.
+     */
+    where: TherapistProfileWhereUniqueInput
+  }
+
+  /**
+   * TherapistProfile updateMany
+   */
+  export type TherapistProfileUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update TherapistProfiles.
+     */
+    data: XOR<TherapistProfileUpdateManyMutationInput, TherapistProfileUncheckedUpdateManyInput>
+    /**
+     * Filter which TherapistProfiles to update
+     */
+    where?: TherapistProfileWhereInput
+    /**
+     * Limit how many TherapistProfiles to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * TherapistProfile updateManyAndReturn
+   */
+  export type TherapistProfileUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TherapistProfile
+     */
+    select?: TherapistProfileSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the TherapistProfile
+     */
+    omit?: TherapistProfileOmit<ExtArgs> | null
+    /**
+     * The data used to update TherapistProfiles.
+     */
+    data: XOR<TherapistProfileUpdateManyMutationInput, TherapistProfileUncheckedUpdateManyInput>
+    /**
+     * Filter which TherapistProfiles to update
+     */
+    where?: TherapistProfileWhereInput
+    /**
+     * Limit how many TherapistProfiles to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TherapistProfileIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * TherapistProfile upsert
+   */
+  export type TherapistProfileUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TherapistProfile
+     */
+    select?: TherapistProfileSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TherapistProfile
+     */
+    omit?: TherapistProfileOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TherapistProfileInclude<ExtArgs> | null
+    /**
+     * The filter to search for the TherapistProfile to update in case it exists.
+     */
+    where: TherapistProfileWhereUniqueInput
+    /**
+     * In case the TherapistProfile found by the `where` argument doesn't exist, create a new TherapistProfile with this data.
+     */
+    create: XOR<TherapistProfileCreateInput, TherapistProfileUncheckedCreateInput>
+    /**
+     * In case the TherapistProfile was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<TherapistProfileUpdateInput, TherapistProfileUncheckedUpdateInput>
+  }
+
+  /**
+   * TherapistProfile delete
+   */
+  export type TherapistProfileDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TherapistProfile
+     */
+    select?: TherapistProfileSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TherapistProfile
+     */
+    omit?: TherapistProfileOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TherapistProfileInclude<ExtArgs> | null
+    /**
+     * Filter which TherapistProfile to delete.
+     */
+    where: TherapistProfileWhereUniqueInput
+  }
+
+  /**
+   * TherapistProfile deleteMany
+   */
+  export type TherapistProfileDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which TherapistProfiles to delete
+     */
+    where?: TherapistProfileWhereInput
+    /**
+     * Limit how many TherapistProfiles to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * TherapistProfile without action
+   */
+  export type TherapistProfileDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TherapistProfile
+     */
+    select?: TherapistProfileSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TherapistProfile
+     */
+    omit?: TherapistProfileOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TherapistProfileInclude<ExtArgs> | null
   }
 
 
@@ -4001,6 +5466,7 @@ export namespace Prisma {
      * The data used to create many AvailabilitySlots.
      */
     data: AvailabilitySlotCreateManyInput | AvailabilitySlotCreateManyInput[]
+    skipDuplicates?: boolean
   }
 
   /**
@@ -4019,6 +5485,7 @@ export namespace Prisma {
      * The data used to create many AvailabilitySlots.
      */
     data: AvailabilitySlotCreateManyInput | AvailabilitySlotCreateManyInput[]
+    skipDuplicates?: boolean
   }
 
   /**
@@ -5046,6 +6513,7 @@ export namespace Prisma {
      * The data used to create many Sessions.
      */
     data: SessionCreateManyInput | SessionCreateManyInput[]
+    skipDuplicates?: boolean
   }
 
   /**
@@ -5064,6 +6532,7 @@ export namespace Prisma {
      * The data used to create many Sessions.
      */
     data: SessionCreateManyInput | SessionCreateManyInput[]
+    skipDuplicates?: boolean
   }
 
   /**
@@ -5210,6 +6679,9 @@ export namespace Prisma {
    */
 
   export const TransactionIsolationLevel: {
+    ReadUncommitted: 'ReadUncommitted',
+    ReadCommitted: 'ReadCommitted',
+    RepeatableRead: 'RepeatableRead',
     Serializable: 'Serializable'
   };
 
@@ -5221,6 +6693,7 @@ export namespace Prisma {
     title: 'title',
     content: 'content',
     author: 'author',
+    authorId: 'authorId',
     category: 'category',
     createdAt: 'createdAt'
   };
@@ -5233,10 +6706,27 @@ export namespace Prisma {
     name: 'name',
     email: 'email',
     password: 'password',
-    role: 'role'
+    role: 'role',
+    phone: 'phone',
+    avatarUrl: 'avatarUrl',
+    createdAt: 'createdAt'
   };
 
   export type UserScalarFieldEnum = (typeof UserScalarFieldEnum)[keyof typeof UserScalarFieldEnum]
+
+
+  export const TherapistProfileScalarFieldEnum: {
+    userId: 'userId',
+    bio: 'bio',
+    specialties: 'specialties',
+    languages: 'languages',
+    yearsOfExperience: 'yearsOfExperience',
+    sessionPrice: 'sessionPrice',
+    sessionType: 'sessionType',
+    location: 'location'
+  };
+
+  export type TherapistProfileScalarFieldEnum = (typeof TherapistProfileScalarFieldEnum)[keyof typeof TherapistProfileScalarFieldEnum]
 
 
   export const AvailabilitySlotScalarFieldEnum: {
@@ -5275,6 +6765,22 @@ export namespace Prisma {
   export type SortOrder = (typeof SortOrder)[keyof typeof SortOrder]
 
 
+  export const QueryMode: {
+    default: 'default',
+    insensitive: 'insensitive'
+  };
+
+  export type QueryMode = (typeof QueryMode)[keyof typeof QueryMode]
+
+
+  export const NullsOrder: {
+    first: 'first',
+    last: 'last'
+  };
+
+  export type NullsOrder = (typeof NullsOrder)[keyof typeof NullsOrder]
+
+
   /**
    * Field references
    */
@@ -5288,9 +6794,37 @@ export namespace Prisma {
 
 
   /**
+   * Reference to a field of type 'String[]'
+   */
+  export type ListStringFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'String[]'>
+    
+
+
+  /**
    * Reference to a field of type 'DateTime'
    */
   export type DateTimeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DateTime'>
+    
+
+
+  /**
+   * Reference to a field of type 'DateTime[]'
+   */
+  export type ListDateTimeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DateTime[]'>
+    
+
+
+  /**
+   * Reference to a field of type 'Int'
+   */
+  export type IntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int'>
+    
+
+
+  /**
+   * Reference to a field of type 'Int[]'
+   */
+  export type ListIntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int[]'>
     
 
 
@@ -5302,9 +6836,16 @@ export namespace Prisma {
 
 
   /**
-   * Reference to a field of type 'Int'
+   * Reference to a field of type 'Float'
    */
-  export type IntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int'>
+  export type FloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float'>
+    
+
+
+  /**
+   * Reference to a field of type 'Float[]'
+   */
+  export type ListFloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float[]'>
     
   /**
    * Deep Input Types
@@ -5319,8 +6860,10 @@ export namespace Prisma {
     title?: StringFilter<"Article"> | string
     content?: StringFilter<"Article"> | string
     author?: StringFilter<"Article"> | string
+    authorId?: StringFilter<"Article"> | string
     category?: StringFilter<"Article"> | string
     createdAt?: DateTimeFilter<"Article"> | Date | string
+    user?: XOR<UserScalarRelationFilter, UserWhereInput>
   }
 
   export type ArticleOrderByWithRelationInput = {
@@ -5328,8 +6871,10 @@ export namespace Prisma {
     title?: SortOrder
     content?: SortOrder
     author?: SortOrder
+    authorId?: SortOrder
     category?: SortOrder
     createdAt?: SortOrder
+    user?: UserOrderByWithRelationInput
   }
 
   export type ArticleWhereUniqueInput = Prisma.AtLeast<{
@@ -5340,8 +6885,10 @@ export namespace Prisma {
     title?: StringFilter<"Article"> | string
     content?: StringFilter<"Article"> | string
     author?: StringFilter<"Article"> | string
+    authorId?: StringFilter<"Article"> | string
     category?: StringFilter<"Article"> | string
     createdAt?: DateTimeFilter<"Article"> | Date | string
+    user?: XOR<UserScalarRelationFilter, UserWhereInput>
   }, "id">
 
   export type ArticleOrderByWithAggregationInput = {
@@ -5349,6 +6896,7 @@ export namespace Prisma {
     title?: SortOrder
     content?: SortOrder
     author?: SortOrder
+    authorId?: SortOrder
     category?: SortOrder
     createdAt?: SortOrder
     _count?: ArticleCountOrderByAggregateInput
@@ -5364,6 +6912,7 @@ export namespace Prisma {
     title?: StringWithAggregatesFilter<"Article"> | string
     content?: StringWithAggregatesFilter<"Article"> | string
     author?: StringWithAggregatesFilter<"Article"> | string
+    authorId?: StringWithAggregatesFilter<"Article"> | string
     category?: StringWithAggregatesFilter<"Article"> | string
     createdAt?: DateTimeWithAggregatesFilter<"Article"> | Date | string
   }
@@ -5377,6 +6926,11 @@ export namespace Prisma {
     email?: StringFilter<"User"> | string
     password?: StringFilter<"User"> | string
     role?: StringFilter<"User"> | string
+    phone?: StringNullableFilter<"User"> | string | null
+    avatarUrl?: StringNullableFilter<"User"> | string | null
+    createdAt?: DateTimeFilter<"User"> | Date | string
+    therapistProfile?: XOR<TherapistProfileNullableScalarRelationFilter, TherapistProfileWhereInput> | null
+    articles?: ArticleListRelationFilter
   }
 
   export type UserOrderByWithRelationInput = {
@@ -5385,6 +6939,11 @@ export namespace Prisma {
     email?: SortOrder
     password?: SortOrder
     role?: SortOrder
+    phone?: SortOrderInput | SortOrder
+    avatarUrl?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    therapistProfile?: TherapistProfileOrderByWithRelationInput
+    articles?: ArticleOrderByRelationAggregateInput
   }
 
   export type UserWhereUniqueInput = Prisma.AtLeast<{
@@ -5396,6 +6955,11 @@ export namespace Prisma {
     name?: StringFilter<"User"> | string
     password?: StringFilter<"User"> | string
     role?: StringFilter<"User"> | string
+    phone?: StringNullableFilter<"User"> | string | null
+    avatarUrl?: StringNullableFilter<"User"> | string | null
+    createdAt?: DateTimeFilter<"User"> | Date | string
+    therapistProfile?: XOR<TherapistProfileNullableScalarRelationFilter, TherapistProfileWhereInput> | null
+    articles?: ArticleListRelationFilter
   }, "id" | "email">
 
   export type UserOrderByWithAggregationInput = {
@@ -5404,6 +6968,9 @@ export namespace Prisma {
     email?: SortOrder
     password?: SortOrder
     role?: SortOrder
+    phone?: SortOrderInput | SortOrder
+    avatarUrl?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
     _count?: UserCountOrderByAggregateInput
     _max?: UserMaxOrderByAggregateInput
     _min?: UserMinOrderByAggregateInput
@@ -5418,6 +6985,81 @@ export namespace Prisma {
     email?: StringWithAggregatesFilter<"User"> | string
     password?: StringWithAggregatesFilter<"User"> | string
     role?: StringWithAggregatesFilter<"User"> | string
+    phone?: StringNullableWithAggregatesFilter<"User"> | string | null
+    avatarUrl?: StringNullableWithAggregatesFilter<"User"> | string | null
+    createdAt?: DateTimeWithAggregatesFilter<"User"> | Date | string
+  }
+
+  export type TherapistProfileWhereInput = {
+    AND?: TherapistProfileWhereInput | TherapistProfileWhereInput[]
+    OR?: TherapistProfileWhereInput[]
+    NOT?: TherapistProfileWhereInput | TherapistProfileWhereInput[]
+    userId?: StringFilter<"TherapistProfile"> | string
+    bio?: StringFilter<"TherapistProfile"> | string
+    specialties?: StringNullableListFilter<"TherapistProfile">
+    languages?: StringNullableListFilter<"TherapistProfile">
+    yearsOfExperience?: IntNullableFilter<"TherapistProfile"> | number | null
+    sessionPrice?: IntNullableFilter<"TherapistProfile"> | number | null
+    sessionType?: StringFilter<"TherapistProfile"> | string
+    location?: StringNullableFilter<"TherapistProfile"> | string | null
+    user?: XOR<UserScalarRelationFilter, UserWhereInput>
+  }
+
+  export type TherapistProfileOrderByWithRelationInput = {
+    userId?: SortOrder
+    bio?: SortOrder
+    specialties?: SortOrder
+    languages?: SortOrder
+    yearsOfExperience?: SortOrderInput | SortOrder
+    sessionPrice?: SortOrderInput | SortOrder
+    sessionType?: SortOrder
+    location?: SortOrderInput | SortOrder
+    user?: UserOrderByWithRelationInput
+  }
+
+  export type TherapistProfileWhereUniqueInput = Prisma.AtLeast<{
+    userId?: string
+    AND?: TherapistProfileWhereInput | TherapistProfileWhereInput[]
+    OR?: TherapistProfileWhereInput[]
+    NOT?: TherapistProfileWhereInput | TherapistProfileWhereInput[]
+    bio?: StringFilter<"TherapistProfile"> | string
+    specialties?: StringNullableListFilter<"TherapistProfile">
+    languages?: StringNullableListFilter<"TherapistProfile">
+    yearsOfExperience?: IntNullableFilter<"TherapistProfile"> | number | null
+    sessionPrice?: IntNullableFilter<"TherapistProfile"> | number | null
+    sessionType?: StringFilter<"TherapistProfile"> | string
+    location?: StringNullableFilter<"TherapistProfile"> | string | null
+    user?: XOR<UserScalarRelationFilter, UserWhereInput>
+  }, "userId">
+
+  export type TherapistProfileOrderByWithAggregationInput = {
+    userId?: SortOrder
+    bio?: SortOrder
+    specialties?: SortOrder
+    languages?: SortOrder
+    yearsOfExperience?: SortOrderInput | SortOrder
+    sessionPrice?: SortOrderInput | SortOrder
+    sessionType?: SortOrder
+    location?: SortOrderInput | SortOrder
+    _count?: TherapistProfileCountOrderByAggregateInput
+    _avg?: TherapistProfileAvgOrderByAggregateInput
+    _max?: TherapistProfileMaxOrderByAggregateInput
+    _min?: TherapistProfileMinOrderByAggregateInput
+    _sum?: TherapistProfileSumOrderByAggregateInput
+  }
+
+  export type TherapistProfileScalarWhereWithAggregatesInput = {
+    AND?: TherapistProfileScalarWhereWithAggregatesInput | TherapistProfileScalarWhereWithAggregatesInput[]
+    OR?: TherapistProfileScalarWhereWithAggregatesInput[]
+    NOT?: TherapistProfileScalarWhereWithAggregatesInput | TherapistProfileScalarWhereWithAggregatesInput[]
+    userId?: StringWithAggregatesFilter<"TherapistProfile"> | string
+    bio?: StringWithAggregatesFilter<"TherapistProfile"> | string
+    specialties?: StringNullableListFilter<"TherapistProfile">
+    languages?: StringNullableListFilter<"TherapistProfile">
+    yearsOfExperience?: IntNullableWithAggregatesFilter<"TherapistProfile"> | number | null
+    sessionPrice?: IntNullableWithAggregatesFilter<"TherapistProfile"> | number | null
+    sessionType?: StringWithAggregatesFilter<"TherapistProfile"> | string
+    location?: StringNullableWithAggregatesFilter<"TherapistProfile"> | string | null
   }
 
   export type AvailabilitySlotWhereInput = {
@@ -5561,6 +7203,7 @@ export namespace Prisma {
     author: string
     category: string
     createdAt?: Date | string
+    user: UserCreateNestedOneWithoutArticlesInput
   }
 
   export type ArticleUncheckedCreateInput = {
@@ -5568,6 +7211,7 @@ export namespace Prisma {
     title: string
     content: string
     author: string
+    authorId: string
     category: string
     createdAt?: Date | string
   }
@@ -5579,6 +7223,7 @@ export namespace Prisma {
     author?: StringFieldUpdateOperationsInput | string
     category?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    user?: UserUpdateOneRequiredWithoutArticlesNestedInput
   }
 
   export type ArticleUncheckedUpdateInput = {
@@ -5586,6 +7231,7 @@ export namespace Prisma {
     title?: StringFieldUpdateOperationsInput | string
     content?: StringFieldUpdateOperationsInput | string
     author?: StringFieldUpdateOperationsInput | string
+    authorId?: StringFieldUpdateOperationsInput | string
     category?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -5595,6 +7241,7 @@ export namespace Prisma {
     title: string
     content: string
     author: string
+    authorId: string
     category: string
     createdAt?: Date | string
   }
@@ -5613,6 +7260,7 @@ export namespace Prisma {
     title?: StringFieldUpdateOperationsInput | string
     content?: StringFieldUpdateOperationsInput | string
     author?: StringFieldUpdateOperationsInput | string
+    authorId?: StringFieldUpdateOperationsInput | string
     category?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -5623,6 +7271,11 @@ export namespace Prisma {
     email: string
     password: string
     role: string
+    phone?: string | null
+    avatarUrl?: string | null
+    createdAt?: Date | string
+    therapistProfile?: TherapistProfileCreateNestedOneWithoutUserInput
+    articles?: ArticleCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateInput = {
@@ -5631,6 +7284,11 @@ export namespace Prisma {
     email: string
     password: string
     role: string
+    phone?: string | null
+    avatarUrl?: string | null
+    createdAt?: Date | string
+    therapistProfile?: TherapistProfileUncheckedCreateNestedOneWithoutUserInput
+    articles?: ArticleUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserUpdateInput = {
@@ -5639,6 +7297,11 @@ export namespace Prisma {
     email?: StringFieldUpdateOperationsInput | string
     password?: StringFieldUpdateOperationsInput | string
     role?: StringFieldUpdateOperationsInput | string
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    avatarUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    therapistProfile?: TherapistProfileUpdateOneWithoutUserNestedInput
+    articles?: ArticleUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateInput = {
@@ -5647,6 +7310,11 @@ export namespace Prisma {
     email?: StringFieldUpdateOperationsInput | string
     password?: StringFieldUpdateOperationsInput | string
     role?: StringFieldUpdateOperationsInput | string
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    avatarUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    therapistProfile?: TherapistProfileUncheckedUpdateOneWithoutUserNestedInput
+    articles?: ArticleUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserCreateManyInput = {
@@ -5655,6 +7323,9 @@ export namespace Prisma {
     email: string
     password: string
     role: string
+    phone?: string | null
+    avatarUrl?: string | null
+    createdAt?: Date | string
   }
 
   export type UserUpdateManyMutationInput = {
@@ -5663,6 +7334,9 @@ export namespace Prisma {
     email?: StringFieldUpdateOperationsInput | string
     password?: StringFieldUpdateOperationsInput | string
     role?: StringFieldUpdateOperationsInput | string
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    avatarUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type UserUncheckedUpdateManyInput = {
@@ -5671,6 +7345,85 @@ export namespace Prisma {
     email?: StringFieldUpdateOperationsInput | string
     password?: StringFieldUpdateOperationsInput | string
     role?: StringFieldUpdateOperationsInput | string
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    avatarUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type TherapistProfileCreateInput = {
+    bio?: string
+    specialties?: TherapistProfileCreatespecialtiesInput | string[]
+    languages?: TherapistProfileCreatelanguagesInput | string[]
+    yearsOfExperience?: number | null
+    sessionPrice?: number | null
+    sessionType?: string
+    location?: string | null
+    user: UserCreateNestedOneWithoutTherapistProfileInput
+  }
+
+  export type TherapistProfileUncheckedCreateInput = {
+    userId: string
+    bio?: string
+    specialties?: TherapistProfileCreatespecialtiesInput | string[]
+    languages?: TherapistProfileCreatelanguagesInput | string[]
+    yearsOfExperience?: number | null
+    sessionPrice?: number | null
+    sessionType?: string
+    location?: string | null
+  }
+
+  export type TherapistProfileUpdateInput = {
+    bio?: StringFieldUpdateOperationsInput | string
+    specialties?: TherapistProfileUpdatespecialtiesInput | string[]
+    languages?: TherapistProfileUpdatelanguagesInput | string[]
+    yearsOfExperience?: NullableIntFieldUpdateOperationsInput | number | null
+    sessionPrice?: NullableIntFieldUpdateOperationsInput | number | null
+    sessionType?: StringFieldUpdateOperationsInput | string
+    location?: NullableStringFieldUpdateOperationsInput | string | null
+    user?: UserUpdateOneRequiredWithoutTherapistProfileNestedInput
+  }
+
+  export type TherapistProfileUncheckedUpdateInput = {
+    userId?: StringFieldUpdateOperationsInput | string
+    bio?: StringFieldUpdateOperationsInput | string
+    specialties?: TherapistProfileUpdatespecialtiesInput | string[]
+    languages?: TherapistProfileUpdatelanguagesInput | string[]
+    yearsOfExperience?: NullableIntFieldUpdateOperationsInput | number | null
+    sessionPrice?: NullableIntFieldUpdateOperationsInput | number | null
+    sessionType?: StringFieldUpdateOperationsInput | string
+    location?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
+  export type TherapistProfileCreateManyInput = {
+    userId: string
+    bio?: string
+    specialties?: TherapistProfileCreatespecialtiesInput | string[]
+    languages?: TherapistProfileCreatelanguagesInput | string[]
+    yearsOfExperience?: number | null
+    sessionPrice?: number | null
+    sessionType?: string
+    location?: string | null
+  }
+
+  export type TherapistProfileUpdateManyMutationInput = {
+    bio?: StringFieldUpdateOperationsInput | string
+    specialties?: TherapistProfileUpdatespecialtiesInput | string[]
+    languages?: TherapistProfileUpdatelanguagesInput | string[]
+    yearsOfExperience?: NullableIntFieldUpdateOperationsInput | number | null
+    sessionPrice?: NullableIntFieldUpdateOperationsInput | number | null
+    sessionType?: StringFieldUpdateOperationsInput | string
+    location?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
+  export type TherapistProfileUncheckedUpdateManyInput = {
+    userId?: StringFieldUpdateOperationsInput | string
+    bio?: StringFieldUpdateOperationsInput | string
+    specialties?: TherapistProfileUpdatespecialtiesInput | string[]
+    languages?: TherapistProfileUpdatelanguagesInput | string[]
+    yearsOfExperience?: NullableIntFieldUpdateOperationsInput | number | null
+    sessionPrice?: NullableIntFieldUpdateOperationsInput | number | null
+    sessionType?: StringFieldUpdateOperationsInput | string
+    location?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type AvailabilitySlotCreateInput = {
@@ -5829,8 +7582,8 @@ export namespace Prisma {
 
   export type StringFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel>
-    in?: string[]
-    notIn?: string[]
+    in?: string[] | ListStringFieldRefInput<$PrismaModel>
+    notIn?: string[] | ListStringFieldRefInput<$PrismaModel>
     lt?: string | StringFieldRefInput<$PrismaModel>
     lte?: string | StringFieldRefInput<$PrismaModel>
     gt?: string | StringFieldRefInput<$PrismaModel>
@@ -5838,13 +7591,14 @@ export namespace Prisma {
     contains?: string | StringFieldRefInput<$PrismaModel>
     startsWith?: string | StringFieldRefInput<$PrismaModel>
     endsWith?: string | StringFieldRefInput<$PrismaModel>
+    mode?: QueryMode
     not?: NestedStringFilter<$PrismaModel> | string
   }
 
   export type DateTimeFilter<$PrismaModel = never> = {
     equals?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    in?: Date[] | string[]
-    notIn?: Date[] | string[]
+    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
+    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
     lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
     lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
     gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
@@ -5852,11 +7606,17 @@ export namespace Prisma {
     not?: NestedDateTimeFilter<$PrismaModel> | Date | string
   }
 
+  export type UserScalarRelationFilter = {
+    is?: UserWhereInput
+    isNot?: UserWhereInput
+  }
+
   export type ArticleCountOrderByAggregateInput = {
     id?: SortOrder
     title?: SortOrder
     content?: SortOrder
     author?: SortOrder
+    authorId?: SortOrder
     category?: SortOrder
     createdAt?: SortOrder
   }
@@ -5866,6 +7626,7 @@ export namespace Prisma {
     title?: SortOrder
     content?: SortOrder
     author?: SortOrder
+    authorId?: SortOrder
     category?: SortOrder
     createdAt?: SortOrder
   }
@@ -5875,14 +7636,15 @@ export namespace Prisma {
     title?: SortOrder
     content?: SortOrder
     author?: SortOrder
+    authorId?: SortOrder
     category?: SortOrder
     createdAt?: SortOrder
   }
 
   export type StringWithAggregatesFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel>
-    in?: string[]
-    notIn?: string[]
+    in?: string[] | ListStringFieldRefInput<$PrismaModel>
+    notIn?: string[] | ListStringFieldRefInput<$PrismaModel>
     lt?: string | StringFieldRefInput<$PrismaModel>
     lte?: string | StringFieldRefInput<$PrismaModel>
     gt?: string | StringFieldRefInput<$PrismaModel>
@@ -5890,6 +7652,7 @@ export namespace Prisma {
     contains?: string | StringFieldRefInput<$PrismaModel>
     startsWith?: string | StringFieldRefInput<$PrismaModel>
     endsWith?: string | StringFieldRefInput<$PrismaModel>
+    mode?: QueryMode
     not?: NestedStringWithAggregatesFilter<$PrismaModel> | string
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedStringFilter<$PrismaModel>
@@ -5898,8 +7661,8 @@ export namespace Prisma {
 
   export type DateTimeWithAggregatesFilter<$PrismaModel = never> = {
     equals?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    in?: Date[] | string[]
-    notIn?: Date[] | string[]
+    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
+    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
     lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
     lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
     gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
@@ -5910,12 +7673,50 @@ export namespace Prisma {
     _max?: NestedDateTimeFilter<$PrismaModel>
   }
 
+  export type StringNullableFilter<$PrismaModel = never> = {
+    equals?: string | StringFieldRefInput<$PrismaModel> | null
+    in?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    notIn?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    lt?: string | StringFieldRefInput<$PrismaModel>
+    lte?: string | StringFieldRefInput<$PrismaModel>
+    gt?: string | StringFieldRefInput<$PrismaModel>
+    gte?: string | StringFieldRefInput<$PrismaModel>
+    contains?: string | StringFieldRefInput<$PrismaModel>
+    startsWith?: string | StringFieldRefInput<$PrismaModel>
+    endsWith?: string | StringFieldRefInput<$PrismaModel>
+    mode?: QueryMode
+    not?: NestedStringNullableFilter<$PrismaModel> | string | null
+  }
+
+  export type TherapistProfileNullableScalarRelationFilter = {
+    is?: TherapistProfileWhereInput | null
+    isNot?: TherapistProfileWhereInput | null
+  }
+
+  export type ArticleListRelationFilter = {
+    every?: ArticleWhereInput
+    some?: ArticleWhereInput
+    none?: ArticleWhereInput
+  }
+
+  export type SortOrderInput = {
+    sort: SortOrder
+    nulls?: NullsOrder
+  }
+
+  export type ArticleOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
   export type UserCountOrderByAggregateInput = {
     id?: SortOrder
     name?: SortOrder
     email?: SortOrder
     password?: SortOrder
     role?: SortOrder
+    phone?: SortOrder
+    avatarUrl?: SortOrder
+    createdAt?: SortOrder
   }
 
   export type UserMaxOrderByAggregateInput = {
@@ -5924,6 +7725,9 @@ export namespace Prisma {
     email?: SortOrder
     password?: SortOrder
     role?: SortOrder
+    phone?: SortOrder
+    avatarUrl?: SortOrder
+    createdAt?: SortOrder
   }
 
   export type UserMinOrderByAggregateInput = {
@@ -5932,6 +7736,101 @@ export namespace Prisma {
     email?: SortOrder
     password?: SortOrder
     role?: SortOrder
+    phone?: SortOrder
+    avatarUrl?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type StringNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: string | StringFieldRefInput<$PrismaModel> | null
+    in?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    notIn?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    lt?: string | StringFieldRefInput<$PrismaModel>
+    lte?: string | StringFieldRefInput<$PrismaModel>
+    gt?: string | StringFieldRefInput<$PrismaModel>
+    gte?: string | StringFieldRefInput<$PrismaModel>
+    contains?: string | StringFieldRefInput<$PrismaModel>
+    startsWith?: string | StringFieldRefInput<$PrismaModel>
+    endsWith?: string | StringFieldRefInput<$PrismaModel>
+    mode?: QueryMode
+    not?: NestedStringNullableWithAggregatesFilter<$PrismaModel> | string | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedStringNullableFilter<$PrismaModel>
+    _max?: NestedStringNullableFilter<$PrismaModel>
+  }
+
+  export type StringNullableListFilter<$PrismaModel = never> = {
+    equals?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    has?: string | StringFieldRefInput<$PrismaModel> | null
+    hasEvery?: string[] | ListStringFieldRefInput<$PrismaModel>
+    hasSome?: string[] | ListStringFieldRefInput<$PrismaModel>
+    isEmpty?: boolean
+  }
+
+  export type IntNullableFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel> | null
+    in?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntNullableFilter<$PrismaModel> | number | null
+  }
+
+  export type TherapistProfileCountOrderByAggregateInput = {
+    userId?: SortOrder
+    bio?: SortOrder
+    specialties?: SortOrder
+    languages?: SortOrder
+    yearsOfExperience?: SortOrder
+    sessionPrice?: SortOrder
+    sessionType?: SortOrder
+    location?: SortOrder
+  }
+
+  export type TherapistProfileAvgOrderByAggregateInput = {
+    yearsOfExperience?: SortOrder
+    sessionPrice?: SortOrder
+  }
+
+  export type TherapistProfileMaxOrderByAggregateInput = {
+    userId?: SortOrder
+    bio?: SortOrder
+    yearsOfExperience?: SortOrder
+    sessionPrice?: SortOrder
+    sessionType?: SortOrder
+    location?: SortOrder
+  }
+
+  export type TherapistProfileMinOrderByAggregateInput = {
+    userId?: SortOrder
+    bio?: SortOrder
+    yearsOfExperience?: SortOrder
+    sessionPrice?: SortOrder
+    sessionType?: SortOrder
+    location?: SortOrder
+  }
+
+  export type TherapistProfileSumOrderByAggregateInput = {
+    yearsOfExperience?: SortOrder
+    sessionPrice?: SortOrder
+  }
+
+  export type IntNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel> | null
+    in?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntNullableWithAggregatesFilter<$PrismaModel> | number | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _avg?: NestedFloatNullableFilter<$PrismaModel>
+    _sum?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedIntNullableFilter<$PrismaModel>
+    _max?: NestedIntNullableFilter<$PrismaModel>
   }
 
   export type BoolFilter<$PrismaModel = never> = {
@@ -6013,6 +7912,12 @@ export namespace Prisma {
     createdAt?: SortOrder
   }
 
+  export type UserCreateNestedOneWithoutArticlesInput = {
+    create?: XOR<UserCreateWithoutArticlesInput, UserUncheckedCreateWithoutArticlesInput>
+    connectOrCreate?: UserCreateOrConnectWithoutArticlesInput
+    connect?: UserWhereUniqueInput
+  }
+
   export type StringFieldUpdateOperationsInput = {
     set?: string
   }
@@ -6021,14 +7926,140 @@ export namespace Prisma {
     set?: Date | string
   }
 
+  export type UserUpdateOneRequiredWithoutArticlesNestedInput = {
+    create?: XOR<UserCreateWithoutArticlesInput, UserUncheckedCreateWithoutArticlesInput>
+    connectOrCreate?: UserCreateOrConnectWithoutArticlesInput
+    upsert?: UserUpsertWithoutArticlesInput
+    connect?: UserWhereUniqueInput
+    update?: XOR<XOR<UserUpdateToOneWithWhereWithoutArticlesInput, UserUpdateWithoutArticlesInput>, UserUncheckedUpdateWithoutArticlesInput>
+  }
+
+  export type TherapistProfileCreateNestedOneWithoutUserInput = {
+    create?: XOR<TherapistProfileCreateWithoutUserInput, TherapistProfileUncheckedCreateWithoutUserInput>
+    connectOrCreate?: TherapistProfileCreateOrConnectWithoutUserInput
+    connect?: TherapistProfileWhereUniqueInput
+  }
+
+  export type ArticleCreateNestedManyWithoutUserInput = {
+    create?: XOR<ArticleCreateWithoutUserInput, ArticleUncheckedCreateWithoutUserInput> | ArticleCreateWithoutUserInput[] | ArticleUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: ArticleCreateOrConnectWithoutUserInput | ArticleCreateOrConnectWithoutUserInput[]
+    createMany?: ArticleCreateManyUserInputEnvelope
+    connect?: ArticleWhereUniqueInput | ArticleWhereUniqueInput[]
+  }
+
+  export type TherapistProfileUncheckedCreateNestedOneWithoutUserInput = {
+    create?: XOR<TherapistProfileCreateWithoutUserInput, TherapistProfileUncheckedCreateWithoutUserInput>
+    connectOrCreate?: TherapistProfileCreateOrConnectWithoutUserInput
+    connect?: TherapistProfileWhereUniqueInput
+  }
+
+  export type ArticleUncheckedCreateNestedManyWithoutUserInput = {
+    create?: XOR<ArticleCreateWithoutUserInput, ArticleUncheckedCreateWithoutUserInput> | ArticleCreateWithoutUserInput[] | ArticleUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: ArticleCreateOrConnectWithoutUserInput | ArticleCreateOrConnectWithoutUserInput[]
+    createMany?: ArticleCreateManyUserInputEnvelope
+    connect?: ArticleWhereUniqueInput | ArticleWhereUniqueInput[]
+  }
+
+  export type NullableStringFieldUpdateOperationsInput = {
+    set?: string | null
+  }
+
+  export type TherapistProfileUpdateOneWithoutUserNestedInput = {
+    create?: XOR<TherapistProfileCreateWithoutUserInput, TherapistProfileUncheckedCreateWithoutUserInput>
+    connectOrCreate?: TherapistProfileCreateOrConnectWithoutUserInput
+    upsert?: TherapistProfileUpsertWithoutUserInput
+    disconnect?: TherapistProfileWhereInput | boolean
+    delete?: TherapistProfileWhereInput | boolean
+    connect?: TherapistProfileWhereUniqueInput
+    update?: XOR<XOR<TherapistProfileUpdateToOneWithWhereWithoutUserInput, TherapistProfileUpdateWithoutUserInput>, TherapistProfileUncheckedUpdateWithoutUserInput>
+  }
+
+  export type ArticleUpdateManyWithoutUserNestedInput = {
+    create?: XOR<ArticleCreateWithoutUserInput, ArticleUncheckedCreateWithoutUserInput> | ArticleCreateWithoutUserInput[] | ArticleUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: ArticleCreateOrConnectWithoutUserInput | ArticleCreateOrConnectWithoutUserInput[]
+    upsert?: ArticleUpsertWithWhereUniqueWithoutUserInput | ArticleUpsertWithWhereUniqueWithoutUserInput[]
+    createMany?: ArticleCreateManyUserInputEnvelope
+    set?: ArticleWhereUniqueInput | ArticleWhereUniqueInput[]
+    disconnect?: ArticleWhereUniqueInput | ArticleWhereUniqueInput[]
+    delete?: ArticleWhereUniqueInput | ArticleWhereUniqueInput[]
+    connect?: ArticleWhereUniqueInput | ArticleWhereUniqueInput[]
+    update?: ArticleUpdateWithWhereUniqueWithoutUserInput | ArticleUpdateWithWhereUniqueWithoutUserInput[]
+    updateMany?: ArticleUpdateManyWithWhereWithoutUserInput | ArticleUpdateManyWithWhereWithoutUserInput[]
+    deleteMany?: ArticleScalarWhereInput | ArticleScalarWhereInput[]
+  }
+
+  export type TherapistProfileUncheckedUpdateOneWithoutUserNestedInput = {
+    create?: XOR<TherapistProfileCreateWithoutUserInput, TherapistProfileUncheckedCreateWithoutUserInput>
+    connectOrCreate?: TherapistProfileCreateOrConnectWithoutUserInput
+    upsert?: TherapistProfileUpsertWithoutUserInput
+    disconnect?: TherapistProfileWhereInput | boolean
+    delete?: TherapistProfileWhereInput | boolean
+    connect?: TherapistProfileWhereUniqueInput
+    update?: XOR<XOR<TherapistProfileUpdateToOneWithWhereWithoutUserInput, TherapistProfileUpdateWithoutUserInput>, TherapistProfileUncheckedUpdateWithoutUserInput>
+  }
+
+  export type ArticleUncheckedUpdateManyWithoutUserNestedInput = {
+    create?: XOR<ArticleCreateWithoutUserInput, ArticleUncheckedCreateWithoutUserInput> | ArticleCreateWithoutUserInput[] | ArticleUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: ArticleCreateOrConnectWithoutUserInput | ArticleCreateOrConnectWithoutUserInput[]
+    upsert?: ArticleUpsertWithWhereUniqueWithoutUserInput | ArticleUpsertWithWhereUniqueWithoutUserInput[]
+    createMany?: ArticleCreateManyUserInputEnvelope
+    set?: ArticleWhereUniqueInput | ArticleWhereUniqueInput[]
+    disconnect?: ArticleWhereUniqueInput | ArticleWhereUniqueInput[]
+    delete?: ArticleWhereUniqueInput | ArticleWhereUniqueInput[]
+    connect?: ArticleWhereUniqueInput | ArticleWhereUniqueInput[]
+    update?: ArticleUpdateWithWhereUniqueWithoutUserInput | ArticleUpdateWithWhereUniqueWithoutUserInput[]
+    updateMany?: ArticleUpdateManyWithWhereWithoutUserInput | ArticleUpdateManyWithWhereWithoutUserInput[]
+    deleteMany?: ArticleScalarWhereInput | ArticleScalarWhereInput[]
+  }
+
+  export type TherapistProfileCreatespecialtiesInput = {
+    set: string[]
+  }
+
+  export type TherapistProfileCreatelanguagesInput = {
+    set: string[]
+  }
+
+  export type UserCreateNestedOneWithoutTherapistProfileInput = {
+    create?: XOR<UserCreateWithoutTherapistProfileInput, UserUncheckedCreateWithoutTherapistProfileInput>
+    connectOrCreate?: UserCreateOrConnectWithoutTherapistProfileInput
+    connect?: UserWhereUniqueInput
+  }
+
+  export type TherapistProfileUpdatespecialtiesInput = {
+    set?: string[]
+    push?: string | string[]
+  }
+
+  export type TherapistProfileUpdatelanguagesInput = {
+    set?: string[]
+    push?: string | string[]
+  }
+
+  export type NullableIntFieldUpdateOperationsInput = {
+    set?: number | null
+    increment?: number
+    decrement?: number
+    multiply?: number
+    divide?: number
+  }
+
+  export type UserUpdateOneRequiredWithoutTherapistProfileNestedInput = {
+    create?: XOR<UserCreateWithoutTherapistProfileInput, UserUncheckedCreateWithoutTherapistProfileInput>
+    connectOrCreate?: UserCreateOrConnectWithoutTherapistProfileInput
+    upsert?: UserUpsertWithoutTherapistProfileInput
+    connect?: UserWhereUniqueInput
+    update?: XOR<XOR<UserUpdateToOneWithWhereWithoutTherapistProfileInput, UserUpdateWithoutTherapistProfileInput>, UserUncheckedUpdateWithoutTherapistProfileInput>
+  }
+
   export type BoolFieldUpdateOperationsInput = {
     set?: boolean
   }
 
   export type NestedStringFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel>
-    in?: string[]
-    notIn?: string[]
+    in?: string[] | ListStringFieldRefInput<$PrismaModel>
+    notIn?: string[] | ListStringFieldRefInput<$PrismaModel>
     lt?: string | StringFieldRefInput<$PrismaModel>
     lte?: string | StringFieldRefInput<$PrismaModel>
     gt?: string | StringFieldRefInput<$PrismaModel>
@@ -6041,8 +8072,8 @@ export namespace Prisma {
 
   export type NestedDateTimeFilter<$PrismaModel = never> = {
     equals?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    in?: Date[] | string[]
-    notIn?: Date[] | string[]
+    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
+    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
     lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
     lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
     gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
@@ -6052,8 +8083,8 @@ export namespace Prisma {
 
   export type NestedStringWithAggregatesFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel>
-    in?: string[]
-    notIn?: string[]
+    in?: string[] | ListStringFieldRefInput<$PrismaModel>
+    notIn?: string[] | ListStringFieldRefInput<$PrismaModel>
     lt?: string | StringFieldRefInput<$PrismaModel>
     lte?: string | StringFieldRefInput<$PrismaModel>
     gt?: string | StringFieldRefInput<$PrismaModel>
@@ -6069,8 +8100,8 @@ export namespace Prisma {
 
   export type NestedIntFilter<$PrismaModel = never> = {
     equals?: number | IntFieldRefInput<$PrismaModel>
-    in?: number[]
-    notIn?: number[]
+    in?: number[] | ListIntFieldRefInput<$PrismaModel>
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel>
     lt?: number | IntFieldRefInput<$PrismaModel>
     lte?: number | IntFieldRefInput<$PrismaModel>
     gt?: number | IntFieldRefInput<$PrismaModel>
@@ -6080,8 +8111,8 @@ export namespace Prisma {
 
   export type NestedDateTimeWithAggregatesFilter<$PrismaModel = never> = {
     equals?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    in?: Date[] | string[]
-    notIn?: Date[] | string[]
+    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
+    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
     lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
     lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
     gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
@@ -6090,6 +8121,75 @@ export namespace Prisma {
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedDateTimeFilter<$PrismaModel>
     _max?: NestedDateTimeFilter<$PrismaModel>
+  }
+
+  export type NestedStringNullableFilter<$PrismaModel = never> = {
+    equals?: string | StringFieldRefInput<$PrismaModel> | null
+    in?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    notIn?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    lt?: string | StringFieldRefInput<$PrismaModel>
+    lte?: string | StringFieldRefInput<$PrismaModel>
+    gt?: string | StringFieldRefInput<$PrismaModel>
+    gte?: string | StringFieldRefInput<$PrismaModel>
+    contains?: string | StringFieldRefInput<$PrismaModel>
+    startsWith?: string | StringFieldRefInput<$PrismaModel>
+    endsWith?: string | StringFieldRefInput<$PrismaModel>
+    not?: NestedStringNullableFilter<$PrismaModel> | string | null
+  }
+
+  export type NestedStringNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: string | StringFieldRefInput<$PrismaModel> | null
+    in?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    notIn?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    lt?: string | StringFieldRefInput<$PrismaModel>
+    lte?: string | StringFieldRefInput<$PrismaModel>
+    gt?: string | StringFieldRefInput<$PrismaModel>
+    gte?: string | StringFieldRefInput<$PrismaModel>
+    contains?: string | StringFieldRefInput<$PrismaModel>
+    startsWith?: string | StringFieldRefInput<$PrismaModel>
+    endsWith?: string | StringFieldRefInput<$PrismaModel>
+    not?: NestedStringNullableWithAggregatesFilter<$PrismaModel> | string | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedStringNullableFilter<$PrismaModel>
+    _max?: NestedStringNullableFilter<$PrismaModel>
+  }
+
+  export type NestedIntNullableFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel> | null
+    in?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntNullableFilter<$PrismaModel> | number | null
+  }
+
+  export type NestedIntNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel> | null
+    in?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntNullableWithAggregatesFilter<$PrismaModel> | number | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _avg?: NestedFloatNullableFilter<$PrismaModel>
+    _sum?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedIntNullableFilter<$PrismaModel>
+    _max?: NestedIntNullableFilter<$PrismaModel>
+  }
+
+  export type NestedFloatNullableFilter<$PrismaModel = never> = {
+    equals?: number | FloatFieldRefInput<$PrismaModel> | null
+    in?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
+    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
+    lt?: number | FloatFieldRefInput<$PrismaModel>
+    lte?: number | FloatFieldRefInput<$PrismaModel>
+    gt?: number | FloatFieldRefInput<$PrismaModel>
+    gte?: number | FloatFieldRefInput<$PrismaModel>
+    not?: NestedFloatNullableFilter<$PrismaModel> | number | null
   }
 
   export type NestedBoolFilter<$PrismaModel = never> = {
@@ -6103,6 +8203,283 @@ export namespace Prisma {
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedBoolFilter<$PrismaModel>
     _max?: NestedBoolFilter<$PrismaModel>
+  }
+
+  export type UserCreateWithoutArticlesInput = {
+    id?: string
+    name: string
+    email: string
+    password: string
+    role: string
+    phone?: string | null
+    avatarUrl?: string | null
+    createdAt?: Date | string
+    therapistProfile?: TherapistProfileCreateNestedOneWithoutUserInput
+  }
+
+  export type UserUncheckedCreateWithoutArticlesInput = {
+    id?: string
+    name: string
+    email: string
+    password: string
+    role: string
+    phone?: string | null
+    avatarUrl?: string | null
+    createdAt?: Date | string
+    therapistProfile?: TherapistProfileUncheckedCreateNestedOneWithoutUserInput
+  }
+
+  export type UserCreateOrConnectWithoutArticlesInput = {
+    where: UserWhereUniqueInput
+    create: XOR<UserCreateWithoutArticlesInput, UserUncheckedCreateWithoutArticlesInput>
+  }
+
+  export type UserUpsertWithoutArticlesInput = {
+    update: XOR<UserUpdateWithoutArticlesInput, UserUncheckedUpdateWithoutArticlesInput>
+    create: XOR<UserCreateWithoutArticlesInput, UserUncheckedCreateWithoutArticlesInput>
+    where?: UserWhereInput
+  }
+
+  export type UserUpdateToOneWithWhereWithoutArticlesInput = {
+    where?: UserWhereInput
+    data: XOR<UserUpdateWithoutArticlesInput, UserUncheckedUpdateWithoutArticlesInput>
+  }
+
+  export type UserUpdateWithoutArticlesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    password?: StringFieldUpdateOperationsInput | string
+    role?: StringFieldUpdateOperationsInput | string
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    avatarUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    therapistProfile?: TherapistProfileUpdateOneWithoutUserNestedInput
+  }
+
+  export type UserUncheckedUpdateWithoutArticlesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    password?: StringFieldUpdateOperationsInput | string
+    role?: StringFieldUpdateOperationsInput | string
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    avatarUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    therapistProfile?: TherapistProfileUncheckedUpdateOneWithoutUserNestedInput
+  }
+
+  export type TherapistProfileCreateWithoutUserInput = {
+    bio?: string
+    specialties?: TherapistProfileCreatespecialtiesInput | string[]
+    languages?: TherapistProfileCreatelanguagesInput | string[]
+    yearsOfExperience?: number | null
+    sessionPrice?: number | null
+    sessionType?: string
+    location?: string | null
+  }
+
+  export type TherapistProfileUncheckedCreateWithoutUserInput = {
+    bio?: string
+    specialties?: TherapistProfileCreatespecialtiesInput | string[]
+    languages?: TherapistProfileCreatelanguagesInput | string[]
+    yearsOfExperience?: number | null
+    sessionPrice?: number | null
+    sessionType?: string
+    location?: string | null
+  }
+
+  export type TherapistProfileCreateOrConnectWithoutUserInput = {
+    where: TherapistProfileWhereUniqueInput
+    create: XOR<TherapistProfileCreateWithoutUserInput, TherapistProfileUncheckedCreateWithoutUserInput>
+  }
+
+  export type ArticleCreateWithoutUserInput = {
+    id?: string
+    title: string
+    content: string
+    author: string
+    category: string
+    createdAt?: Date | string
+  }
+
+  export type ArticleUncheckedCreateWithoutUserInput = {
+    id?: string
+    title: string
+    content: string
+    author: string
+    category: string
+    createdAt?: Date | string
+  }
+
+  export type ArticleCreateOrConnectWithoutUserInput = {
+    where: ArticleWhereUniqueInput
+    create: XOR<ArticleCreateWithoutUserInput, ArticleUncheckedCreateWithoutUserInput>
+  }
+
+  export type ArticleCreateManyUserInputEnvelope = {
+    data: ArticleCreateManyUserInput | ArticleCreateManyUserInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type TherapistProfileUpsertWithoutUserInput = {
+    update: XOR<TherapistProfileUpdateWithoutUserInput, TherapistProfileUncheckedUpdateWithoutUserInput>
+    create: XOR<TherapistProfileCreateWithoutUserInput, TherapistProfileUncheckedCreateWithoutUserInput>
+    where?: TherapistProfileWhereInput
+  }
+
+  export type TherapistProfileUpdateToOneWithWhereWithoutUserInput = {
+    where?: TherapistProfileWhereInput
+    data: XOR<TherapistProfileUpdateWithoutUserInput, TherapistProfileUncheckedUpdateWithoutUserInput>
+  }
+
+  export type TherapistProfileUpdateWithoutUserInput = {
+    bio?: StringFieldUpdateOperationsInput | string
+    specialties?: TherapistProfileUpdatespecialtiesInput | string[]
+    languages?: TherapistProfileUpdatelanguagesInput | string[]
+    yearsOfExperience?: NullableIntFieldUpdateOperationsInput | number | null
+    sessionPrice?: NullableIntFieldUpdateOperationsInput | number | null
+    sessionType?: StringFieldUpdateOperationsInput | string
+    location?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
+  export type TherapistProfileUncheckedUpdateWithoutUserInput = {
+    bio?: StringFieldUpdateOperationsInput | string
+    specialties?: TherapistProfileUpdatespecialtiesInput | string[]
+    languages?: TherapistProfileUpdatelanguagesInput | string[]
+    yearsOfExperience?: NullableIntFieldUpdateOperationsInput | number | null
+    sessionPrice?: NullableIntFieldUpdateOperationsInput | number | null
+    sessionType?: StringFieldUpdateOperationsInput | string
+    location?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
+  export type ArticleUpsertWithWhereUniqueWithoutUserInput = {
+    where: ArticleWhereUniqueInput
+    update: XOR<ArticleUpdateWithoutUserInput, ArticleUncheckedUpdateWithoutUserInput>
+    create: XOR<ArticleCreateWithoutUserInput, ArticleUncheckedCreateWithoutUserInput>
+  }
+
+  export type ArticleUpdateWithWhereUniqueWithoutUserInput = {
+    where: ArticleWhereUniqueInput
+    data: XOR<ArticleUpdateWithoutUserInput, ArticleUncheckedUpdateWithoutUserInput>
+  }
+
+  export type ArticleUpdateManyWithWhereWithoutUserInput = {
+    where: ArticleScalarWhereInput
+    data: XOR<ArticleUpdateManyMutationInput, ArticleUncheckedUpdateManyWithoutUserInput>
+  }
+
+  export type ArticleScalarWhereInput = {
+    AND?: ArticleScalarWhereInput | ArticleScalarWhereInput[]
+    OR?: ArticleScalarWhereInput[]
+    NOT?: ArticleScalarWhereInput | ArticleScalarWhereInput[]
+    id?: StringFilter<"Article"> | string
+    title?: StringFilter<"Article"> | string
+    content?: StringFilter<"Article"> | string
+    author?: StringFilter<"Article"> | string
+    authorId?: StringFilter<"Article"> | string
+    category?: StringFilter<"Article"> | string
+    createdAt?: DateTimeFilter<"Article"> | Date | string
+  }
+
+  export type UserCreateWithoutTherapistProfileInput = {
+    id?: string
+    name: string
+    email: string
+    password: string
+    role: string
+    phone?: string | null
+    avatarUrl?: string | null
+    createdAt?: Date | string
+    articles?: ArticleCreateNestedManyWithoutUserInput
+  }
+
+  export type UserUncheckedCreateWithoutTherapistProfileInput = {
+    id?: string
+    name: string
+    email: string
+    password: string
+    role: string
+    phone?: string | null
+    avatarUrl?: string | null
+    createdAt?: Date | string
+    articles?: ArticleUncheckedCreateNestedManyWithoutUserInput
+  }
+
+  export type UserCreateOrConnectWithoutTherapistProfileInput = {
+    where: UserWhereUniqueInput
+    create: XOR<UserCreateWithoutTherapistProfileInput, UserUncheckedCreateWithoutTherapistProfileInput>
+  }
+
+  export type UserUpsertWithoutTherapistProfileInput = {
+    update: XOR<UserUpdateWithoutTherapistProfileInput, UserUncheckedUpdateWithoutTherapistProfileInput>
+    create: XOR<UserCreateWithoutTherapistProfileInput, UserUncheckedCreateWithoutTherapistProfileInput>
+    where?: UserWhereInput
+  }
+
+  export type UserUpdateToOneWithWhereWithoutTherapistProfileInput = {
+    where?: UserWhereInput
+    data: XOR<UserUpdateWithoutTherapistProfileInput, UserUncheckedUpdateWithoutTherapistProfileInput>
+  }
+
+  export type UserUpdateWithoutTherapistProfileInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    password?: StringFieldUpdateOperationsInput | string
+    role?: StringFieldUpdateOperationsInput | string
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    avatarUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    articles?: ArticleUpdateManyWithoutUserNestedInput
+  }
+
+  export type UserUncheckedUpdateWithoutTherapistProfileInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    password?: StringFieldUpdateOperationsInput | string
+    role?: StringFieldUpdateOperationsInput | string
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    avatarUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    articles?: ArticleUncheckedUpdateManyWithoutUserNestedInput
+  }
+
+  export type ArticleCreateManyUserInput = {
+    id?: string
+    title: string
+    content: string
+    author: string
+    category: string
+    createdAt?: Date | string
+  }
+
+  export type ArticleUpdateWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    content?: StringFieldUpdateOperationsInput | string
+    author?: StringFieldUpdateOperationsInput | string
+    category?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ArticleUncheckedUpdateWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    content?: StringFieldUpdateOperationsInput | string
+    author?: StringFieldUpdateOperationsInput | string
+    category?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ArticleUncheckedUpdateManyWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    content?: StringFieldUpdateOperationsInput | string
+    author?: StringFieldUpdateOperationsInput | string
+    category?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
 

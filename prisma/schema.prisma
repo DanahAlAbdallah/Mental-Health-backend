@@ -1,6 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
   output   = "../generated/prisma"
@@ -16,16 +13,37 @@ model Article {
   title     String
   content   String
   author    String
+  authorId  String
+  user      User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
   category  String
   createdAt DateTime @default(now())
 }
 
 model User {
-  id       String @id @default(uuid())
-  name     String
-  email    String @unique
-  password String
-  role     String
+  id        String   @id @default(uuid())
+  name      String
+  email     String   @unique
+  password  String
+  role      String
+  phone     String?
+  avatarUrl String?
+  createdAt DateTime @default(now())
+
+  therapistProfile TherapistProfile?
+  articles         Article[]
+}
+
+// EXTRA INFORMATION THAT ONLY THERAPISTS HAVE (ONE PROFILE PER THERAPIST)
+model TherapistProfile {
+  userId            String   @id
+  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  bio               String   @default("")
+  specialties       String[]
+  languages         String[]
+  yearsOfExperience Int?
+  sessionPrice      Int?
+  sessionType       String   @default("online")
+  location          String?
 }
 
 model AvailabilitySlot {

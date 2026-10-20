@@ -221,6 +221,71 @@ router.get("/:id", authenticate, async (req: AuthRequest, res) => {
 });
 
 // UPDATE A USER'S NAME, EMAIL, PHONE AND PHOTO. ONLY THE USER THEMSELVES OR AN ADMIN.
+
+// UPDATE THE LOGGED-IN USER'S PERSONAL INFORMATION
+router.put("/me", authenticate, async (req: AuthRequest, res) => {
+  const { name, phone, avatarUrl } = req.body;
+
+  if (typeof name !== "string" || !name.trim()) {
+    return res.status(400).json({ error: "Name cannot be empty" });
+  }
+
+  if (name.trim().length > 100) {
+    return res.status(400).json({ error: "Name is too long" });
+  }
+
+  if (phone !== undefined && phone !== null && typeof phone !== "string") {
+    return res.status(400).json({ error: "Invalid phone number" });
+  }
+
+  if (
+    avatarUrl !== undefined &&
+    avatarUrl !== null &&
+    typeof avatarUrl !== "string"
+  ) {
+    return res.status(400).json({ error: "Invalid avatar URL" });
+  }
+
+  const id = req.user!.id;
+  const newName = name.trim();
+
+  try {
+    const user = await prisma.$transaction(async (tx) => {
+      const updatedUser = await tx.user.update({
+        where: { id },
+        data: {
+          name: newName,
+          phone:
+            phone === null
+              ? null
+              : typeof phone === "string"
+                ? phone.trim() || null
+                : undefined,
+          avatarUrl:
+            avatarUrl === null
+              ? null
+              : typeof avatarUrl === "string"
+                ? avatarUrl.trim() || null
+                : undefined,
+        },
+        select: privateUserSelect,
+      });
+
+      await tx.article.updateMany({
+        where: { authorId: id },
+        data: { author: newName },
+      });
+
+      return updatedUser;
+    });
+
+    return res.json(user);
+  } catch (err) {
+    console.error("Failed to update own profile:", err);
+    return res.status(500).json({ error: "Failed to update profile" });
+  }
+});
+
 // THE ROLE AND THE PASSWORD CANNOT BE CHANGED HERE
 router.put("/:id", authenticate, async (req: AuthRequest, res) => {
   const isOwnProfile = req.user!.id === req.params.id;

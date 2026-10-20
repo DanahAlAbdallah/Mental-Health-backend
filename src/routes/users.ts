@@ -155,21 +155,28 @@ router.put(
       });
     }
 
-    for (const [label, value] of [
-      ["Years of experience", yearsOfExperience],
-      ["Session price", sessionPrice],
-    ] as const) {
-      if (
-        value !== undefined &&
-        value !== null &&
-        (!Number.isInteger(value) || value < 0)
-      ) {
-        return res
-          .status(400)
-          .json({ error: `${label} must be a positive whole number` });
-      }
-    }
+   if (
+  yearsOfExperience !== undefined &&
+  yearsOfExperience !== null &&
+  (!Number.isInteger(yearsOfExperience) || yearsOfExperience < 0)
+) {
+  return res.status(400).json({
+    error: "Years of experience must be a non-negative whole number",
+  });
+}
 
+if (
+  sessionPrice !== undefined &&
+  sessionPrice !== null &&
+  (typeof sessionPrice !== "number" ||
+    !Number.isFinite(sessionPrice) ||
+    sessionPrice < 0 ||
+    Math.round(sessionPrice * 100) !== sessionPrice * 100)
+) {
+  return res.status(400).json({
+    error: "Session price must be a non-negative number with at most two decimal places",
+  });
+}
     const data = {
       bio: bio?.trim(),
       specialties: cleanList(specialties),

@@ -232,7 +232,7 @@ router.get("/:id", authenticate, async (req: AuthRequest, res) => {
 // UPDATE THE LOGGED-IN USER'S PERSONAL INFORMATION
 router.put("/me", authenticate, async (req: AuthRequest, res) => {
   const { name, phone, avatarUrl } = req.body;
-
+console.log("body in back",req.body)
   if (typeof name !== "string" || !name.trim()) {
     return res.status(400).json({ error: "Name cannot be empty" });
   }

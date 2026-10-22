@@ -45,33 +45,84 @@ app.post("/api/auth/login", async (req, res) => {
   });
   res.json({
     token,
-    user: { id: user.id, name: user.name, email: user.email, role: user.role },
-  });
-});
-
-// ================= SIGNUP  =================
-app.post("/api/auth/signup", async (req, res) => {
-  const { name, email, password, role } = req.body;
-  const existing = await prisma.user.findUnique({ where: { email } });
-  if (existing) {
-    return res.status(400).json({ error: "Email already registered" });
-  }
-  const hashedPassword = await bcrypt.hash(password, 10);
-  const user = await prisma.user.create({
-    data: { name, email, password: hashedPassword, role },
-  });
-  const token = jwt.sign({ id: user.id, role: user.role }, JWT_SECRET, {
-    expiresIn: "7d",
-  });
-  res.status(201).json({
-    token,
     user: {
       id: user.id,
       name: user.name,
+      phone: user.phone,
       email: user.email,
       role: user.role,
     },
   });
+});
+
+// ================= SIGNUP  =================
+function validatePassword(password: unknown): string | null {
+  if (typeof password !== "string") {
+    return "Password is required";
+  }
+  if (password.length < 8) {
+    return "Password must be at least 8 characters long";
+  }
+  if (!/[A-Za-z]/.test(password)) {
+    return "Password must contain at least one letter";
+  }
+  if (!/[0-9]/.test(password)) {
+    return "Password must contain at least one number";
+  }
+  if (!/[^A-Za-z0-9]/.test(password)) {
+    return "Password must contain at least one special character";
+  }
+  return null;
+}
+
+// SIGNUP
+app.post("/api/auth/signup", async (req, res) => {
+  const { name, email, password, role } = req.body;
+
+  // BASIC INPUT CHECKS
+  if (typeof name !== "string" || !name.trim()) {
+    return res.status(400).json({ error: "Name is required" });
+  }
+  if (typeof email !== "string" || !email.trim()) {
+    return res.status(400).json({ error: "Email is required" });
+  }
+
+  // PASSWORD CHECK
+  const passwordError = validatePassword(password);
+  if (passwordError) {
+    return res.status(400).json({ error: passwordError });
+  }
+
+  try {
+    const existing = await prisma.user.findUnique({ where: { email } });
+    if (existing) {
+      return res.status(400).json({ error: "Email already registered" });
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const user = await prisma.user.create({
+      data: { name: name.trim(), email, password: hashedPassword, role },
+    });
+
+    const token = jwt.sign({ id: user.id, role: user.role }, JWT_SECRET, {
+      expiresIn: "7d",
+    });
+
+    res.status(201).json({
+      token,
+      user: {
+        id: user.id,
+        name: user.name,
+        phone: user.phone,
+        avatarUrl: user.avatarUrl,
+        email: user.email,
+        role: user.role,
+      },
+    });
+  } catch (err) {
+    console.error("Signup failed:", err);
+    res.status(500).json({ error: "Failed to create account" });
+  }
 });
 
 // ================= START SERVER =================

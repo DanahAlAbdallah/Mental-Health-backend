@@ -34,6 +34,24 @@ router.get("/", async (req, res) => {
   }
 });
 
+// GET SPECIFIC THERAPIST ARTICLES
+router.get("/mine", authenticate, async (req: AuthRequest, res) => {
+  if (req.user!.role !== "therapist") {
+    return res.status(403).json({ error: "Forbidden" });
+  }
+
+  try {
+    const articles = await prisma.article.findMany({
+      where: { authorId: req.user!.id },
+      orderBy: { createdAt: "desc" },
+    });
+    res.json(articles);
+  } catch (err) {
+    console.error("Failed to fetch my articles:", err);
+    res.status(500).json({ error: "Failed to fetch articles" });
+  }
+});
+
 // GET THE 3 NEWEST ARTICLES (FOR THE LANDING PAGE).
 // MUST STAY ABOVE "/:id", OTHERWISE "latest" IS TREATED AS AN ID
 router.get("/latest", async (_req, res) => {

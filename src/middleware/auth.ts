@@ -1,10 +1,10 @@
 import type { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
 import "dotenv/config";
-
+import { JWT_SECRET } from "../config/env";
 // THE SECRET USED TO SIGN AND CHECK LOGIN TOKENS.
 // IF IT IS MISSING WE STOP THE SERVER AT STARTUP, INSTEAD OF REJECTING EVERY LOGIN LATER
-const JWT_SECRET = process.env.JWT_SECRET;
+
 if (!JWT_SECRET) {
   throw new Error("JWT_SECRET is not set in the environment variables");
 }

@@ -4,10 +4,10 @@ import {
   requireRole,
   type AuthRequest,
 } from "../middleware/auth";
-import { PrismaClient } from "../../generated/prisma";
+import { prisma } from "../lib/prisma";
 
 const router = Router();
-const prisma = new PrismaClient();
+
 
 // GET ALL ARTICLES, WITH AN OPTIONAL SEARCH THAT IGNORES UPPERCASE AND LOWERCASE
 router.get("/", async (req, res) => {

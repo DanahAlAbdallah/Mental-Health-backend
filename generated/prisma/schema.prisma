@@ -13,6 +13,8 @@ model Article {
   title     String
   content   String
   author    String
+  authorId  String
+  user      User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
   category  String
   createdAt DateTime @default(now())
 }
@@ -28,6 +30,7 @@ model User {
   createdAt DateTime @default(now())
 
   therapistProfile TherapistProfile?
+  articles         Article[]
 }
 
 // EXTRA INFORMATION THAT ONLY THERAPISTS HAVE (ONE PROFILE PER THERAPIST)

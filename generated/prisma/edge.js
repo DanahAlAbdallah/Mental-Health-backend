@@ -208,11 +208,12 @@ const config = {
     "db"
   ],
   "activeProvider": "postgresql",
+  "postinstall": false,
   "inlineDatasources": {
     "db": {
       "url": {
         "fromEnvVar": "DATABASE_URL",
-        "value": "postgresql://mental_health_user:q4bE1T9JsTQC9j31gYLzXwPw6xS1Gaoo@dpg-db3up11srm7s73aa0h50-a.oregon-postgres.render.com/mental_health_02yl"
+        "value": null
       }
     }
   },

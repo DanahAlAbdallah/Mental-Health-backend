@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { PrismaClient } from "../../generated/prisma";
+import { prisma } from "../lib/prisma";
 import {
   authenticate,
   requireRole,
@@ -7,7 +7,7 @@ import {
 } from "../middleware/auth";
 
 const router = Router();
-const prisma = new PrismaClient();
+
 
 // THE STATUSES A SESSION CAN BE CHANGED TO ("pending" IS ONLY SET WHEN BOOKING)
 const NEW_STATUSES = ["confirmed", "rejected", "cancelled"];

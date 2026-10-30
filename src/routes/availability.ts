@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { PrismaClient } from "../../generated/prisma";
+import { prisma } from "../lib/prisma";
 import {
   authenticate,
   requireRole,
@@ -7,7 +7,7 @@ import {
 } from "../middleware/auth";
 
 const router = Router();
-const prisma = new PrismaClient();
+
 
 // THE FORMATS WE ACCEPT: DATE AS 2026-10-16 AND TIME AS 09:30 (24 HOURS)
 const DATE_FORMAT = /^\d{4}-\d{2}-\d{2}$/;

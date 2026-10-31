@@ -2,6 +2,7 @@ import type { Response } from "express";
 import { prisma } from "../lib/prisma";
 import type { AuthRequest } from "../middleware/auth";
 import { isNewStatus, isValidId } from "../validators/sessions";
+import { isPastSlot } from "../lib/time";
 
 // A CLIENT CANNOT HOLD MORE THAN THIS MANY UNANSWERED BOOKINGS AT ONCE
 const MAX_PENDING_PER_CLIENT = 3;
@@ -61,6 +62,13 @@ export async function bookSession(req: AuthRequest, res: Response) {
 
     if (slot.isBooked) {
       return res.status(409).json({ error: "Slot is already booked" });
+    }
+
+    // A SLOT THAT HAS ALREADY STARTED CAN'T BE BOOKED
+    if (isPastSlot(slot.date, slot.startTime)) {
+      return res.status(409).json({
+        error: "This time has already passed. Please choose another slot.",
+      });
     }
 
     const session = await prisma.$transaction(async (tx) => {

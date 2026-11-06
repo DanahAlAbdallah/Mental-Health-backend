@@ -21,18 +21,22 @@ model Article {
 }
 
 model User {
-  id        String   @id @default(uuid())
-  name      String
-  email     String   @unique
-  password  String
-  role      String
-  phone     String?
-  avatarUrl String?
-  createdAt DateTime @default(now())
+  id                String    @id @default(uuid())
+  name              String
+  email             String    @unique
+  password          String?   // Made optional to support Google-only OAuth accounts
+  role              String
+  phone             String?
+  avatarUrl         String?
+  passwordChangedAt DateTime? // Security tracking: invalidates old JWTs after a password reset
+  createdAt         DateTime  @default(now())
 
-  therapistProfile TherapistProfile?
-  articles         Article[]
+  therapistProfile  TherapistProfile?
+  articles          Article[]
+  resetTokens       PasswordResetToken[] // Relation to manage password reset tokens
+  googleId          String?   @unique   // Google OAuth unique identifier
 }
+
 
 // EXTRA INFORMATION THAT ONLY THERAPISTS HAVE (ONE PROFILE PER THERAPIST)
 model TherapistProfile {
@@ -67,4 +71,14 @@ model Session {
   endTime     String
   status      String   @default("pending")
   createdAt   DateTime @default(now())
+}
+
+model PasswordResetToken {
+  id        String    @id @default(uuid())
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tokenHash String    @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
 }

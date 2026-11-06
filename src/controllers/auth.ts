@@ -3,12 +3,14 @@ import bcrypt from "bcrypt"; // USE "bcryptjs" IF THAT IS WHAT YOU HAVE INSTALLE
 import jwt from "jsonwebtoken";
 import { prisma } from "../lib/prisma";
 import { JWT_SECRET } from "../config/env";
+
 const DUMMY_HASH = bcrypt.hashSync("not-a-real-password", 10);
 import {
   isSignupRole,
   isValidEmail,
   validatePassword,
 } from "../validators/auth";
+import { generatePasswordResetToken,hashToken } from "../lib/tokens";
 // PRISMA ERRORS HAVE A `code`. P2002 = UNIQUE CONSTRAINT FAILED (EMAIL ALREADY EXISTS).
 // CHECKING THE CODE DIRECTLY WORKS IN EVERY PRISMA VERSION.
 function isUniqueConstraintError(err: unknown): boolean {
@@ -121,7 +123,7 @@ export async function login(req: Request, res: Response) {
     //    SO BOTH CASES TAKE ABOUT THE SAME TIME
     const validPassword = await bcrypt.compare(
       password,
-      user ? user.password : DUMMY_HASH,
+      (user ? user.password : DUMMY_HASH) as string,
     );
 
     // 5. SAME GENERIC MESSAGE FOR "NO USER" AND "WRONG PASSWORD"
@@ -152,5 +154,117 @@ export async function login(req: Request, res: Response) {
     return res
       .status(500)
       .json({ error: "An unexpected error occurred during login" });
+  }
+}
+
+// FORGET PASSWORD
+export async function forgotPassword(req: Request, res: Response) {
+  const { email } = req.body;
+
+  if (!email) {
+    return res.status(400).json({ error: "Email is required" });
+  }
+
+  try {
+    // ANTI-ENUMERATION GUARD:
+    // Always return a neutral success message whether the email exists or not.
+    const genericResponse = {
+      message: "If that email exists in our system, we have sent a password reset link.",
+    };
+
+    const user = await prisma.user.findUnique({ where: { email } });
+
+    // If user doesn't exist, or is a Google-only account (has no password set), 
+    // silently stop here but return the exact same success response.
+    if (!user || !user.password) {
+      return res.status(200).json(genericResponse);
+    }
+
+    // Invalidate any older unused reset tokens for this user
+    await prisma.passwordResetToken.updateMany({
+      where: { userId: user.id, usedAt: null },
+      data: { usedAt: new Date() },
+    });
+
+    // Generate fresh token and hash
+    const { rawToken, tokenHash } = generatePasswordResetToken();
+    const expiresAt = new Date(Date.now() + 30 * 60 * 1000); // Valid for 30 minutes
+
+    await prisma.passwordResetToken.create({
+      data: {
+        userId: user.id,
+        tokenHash,
+        expiresAt,
+      },
+    });
+
+    // Construct reset link pointing to your frontend
+    const frontendUrl = process.env.FRONTEND_URL || "http://localhost:5173";
+    const resetLink = `${frontendUrl}/reset-password?token=${rawToken}`;
+
+    // TODO: Send email via Resend API
+    // For local dev right now, print it to the console:
+    console.log(`[DEV ONLY] Password reset link for ${email}: ${resetLink}`);
+
+    return res.status(200).json(genericResponse);
+  } catch (err) {
+    console.error("Forgot password error:", err);
+    return res.status(500).json({ error: "Internal server error" });
+  }
+}
+
+// RESET PASSWORD 
+export async function resetPassword(req: Request, res: Response) {
+  const { token, newPassword } = req.body;
+
+  if (!token || !newPassword) {
+    return res.status(400).json({ error: "Token and new password are required" });
+  }
+
+  // Validate password strength rules (reuse your signup validation rules)
+  // const validationError = validatePassword(newPassword);
+  // if (validationError) return res.status(400).json({ error: validationError });
+
+  try {
+    const tokenHash = hashToken(token);
+
+    // Find the token record in the database
+    const resetRecord = await prisma.passwordResetToken.findUnique({
+      where: { tokenHash },
+      include: { user: true },
+    });
+
+    // Check if token exists, has already been used, or has expired
+    if (
+      !resetRecord ||
+      resetRecord.usedAt !== null ||
+      resetRecord.expiresAt < new Date()
+    ) {
+      return res.status(400).json({ error: "Invalid or expired password reset token" });
+    }
+
+    // Hash the new password securely
+    const saltRounds = 12; // High work factor for secure hashing
+    const hashedPassword = await bcrypt.hash(newPassword, saltRounds);
+
+    // Perform atomic update: update password, record passwordChangedAt timestamp, mark token as used
+    await prisma.$transaction([
+      prisma.user.update({
+        where: { id: resetRecord.userId },
+        data: {
+          password: hashedPassword,
+          passwordChangedAt: new Date(), // Invalidates all previous JWTs instantly
+        },
+      }),
+      prisma.passwordResetToken.update({
+        where: { id: resetRecord.id },
+        data: { usedAt: new Date() },
+      }),
+    ]);
+
+    return res.status(200).json({ message: "Password has been successfully reset. You can now log in." });
+  } catch (err) {
+    console.error("Reset password error:", err);
+    return res.status(500).json({ error: "Internal server error" });
   }
 }

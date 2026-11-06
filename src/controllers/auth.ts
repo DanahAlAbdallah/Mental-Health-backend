@@ -10,7 +10,8 @@ import {
   isValidEmail,
   validatePassword,
 } from "../validators/auth";
-import { generatePasswordResetToken,hashToken } from "../lib/tokens";
+import { generatePasswordResetToken, hashToken } from "../lib/tokens";
+import { sendPasswordResetEmail } from "../lib/mail";
 // PRISMA ERRORS HAVE A `code`. P2002 = UNIQUE CONSTRAINT FAILED (EMAIL ALREADY EXISTS).
 // CHECKING THE CODE DIRECTLY WORKS IN EVERY PRISMA VERSION.
 function isUniqueConstraintError(err: unknown): boolean {
@@ -159,66 +160,58 @@ export async function login(req: Request, res: Response) {
 
 // FORGET PASSWORD
 export async function forgotPassword(req: Request, res: Response) {
-  const { email } = req.body;
-
-  if (!email) {
-    return res.status(400).json({ error: "Email is required" });
-  }
-
   try {
-    // ANTI-ENUMERATION GUARD:
-    // Always return a neutral success message whether the email exists or not.
-    const genericResponse = {
-      message: "If that email exists in our system, we have sent a password reset link.",
-    };
+    const { email } = req.body;
 
-    const user = await prisma.user.findUnique({ where: { email } });
-
-    // If user doesn't exist, or is a Google-only account (has no password set), 
-    // silently stop here but return the exact same success response.
-    if (!user || !user.password) {
-      return res.status(200).json(genericResponse);
+    if (!email) {
+      return res.status(400).json({ error: "Email is required." });
     }
 
-    // Invalidate any older unused reset tokens for this user
-    await prisma.passwordResetToken.updateMany({
-      where: { userId: user.id, usedAt: null },
-      data: { usedAt: new Date() },
+    // 1. Find the user (use anti-enumeration: always return success message even if not found)
+    const user = await prisma.user.findUnique({ where: { email } });
+
+    if (user) {
+      // 2. Generate the reset token
+      const { rawToken, tokenHash } = generatePasswordResetToken();
+
+      // 3. Set expiration to 30 minutes from now
+      const expiresAt = new Date(Date.now() + 30 * 60 * 1000);
+
+      // 4. Save the hashed token to the database
+      await prisma.passwordResetToken.create({
+        data: {
+          userId: user.id,
+          tokenHash: tokenHash,
+          expiresAt,
+        },
+      });
+
+      // 5. Send the real email via Resend
+      try {
+        await sendPasswordResetEmail(email, rawToken);
+      } catch (emailError) {
+        console.error("Error dispatching password reset email:", emailError);
+      }
+    }
+
+    // Always return a neutral response to prevent user enumeration
+    return res.status(200).json({
+      message:
+        "If that email exists in our system, we have sent a password reset link.",
     });
-
-    // Generate fresh token and hash
-    const { rawToken, tokenHash } = generatePasswordResetToken();
-    const expiresAt = new Date(Date.now() + 30 * 60 * 1000); // Valid for 30 minutes
-
-    await prisma.passwordResetToken.create({
-      data: {
-        userId: user.id,
-        tokenHash,
-        expiresAt,
-      },
-    });
-
-    // Construct reset link pointing to your frontend
-    const frontendUrl = process.env.FRONTEND_URL || "http://localhost:5173";
-    const resetLink = `${frontendUrl}/reset-password?token=${rawToken}`;
-
-    // TODO: Send email via Resend API
-    // For local dev right now, print it to the console:
-    console.log(`[DEV ONLY] Password reset link for ${email}: ${resetLink}`);
-
-    return res.status(200).json(genericResponse);
-  } catch (err) {
-    console.error("Forgot password error:", err);
+  } catch (error) {
+    console.error("Forgot password error:", error);
     return res.status(500).json({ error: "Internal server error" });
   }
 }
-
-// RESET PASSWORD 
+// RESET PASSWORD
 export async function resetPassword(req: Request, res: Response) {
   const { token, newPassword } = req.body;
 
   if (!token || !newPassword) {
-    return res.status(400).json({ error: "Token and new password are required" });
+    return res
+      .status(400)
+      .json({ error: "Token and new password are required" });
   }
 
   // Validate password strength rules (reuse your signup validation rules)
@@ -240,7 +233,9 @@ export async function resetPassword(req: Request, res: Response) {
       resetRecord.usedAt !== null ||
       resetRecord.expiresAt < new Date()
     ) {
-      return res.status(400).json({ error: "Invalid or expired password reset token" });
+      return res
+        .status(400)
+        .json({ error: "Invalid or expired password reset token" });
     }
 
     // Hash the new password securely
@@ -262,7 +257,11 @@ export async function resetPassword(req: Request, res: Response) {
       }),
     ]);
 
-    return res.status(200).json({ message: "Password has been successfully reset. You can now log in." });
+    return res
+      .status(200)
+      .json({
+        message: "Password has been successfully reset. You can now log in.",
+      });
   } catch (err) {
     console.error("Reset password error:", err);
     return res.status(500).json({ error: "Internal server error" });

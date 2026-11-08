@@ -18,3 +18,8 @@ export function isValidId(value: unknown): value is string {
     value.trim().length <= 100
   );
 }
+
+// CHECK SESSION TYPE
+export function isValidSessionType(value: unknown): value is "online" | "in-person" {
+  return value === "online" || value === "in-person";
+}

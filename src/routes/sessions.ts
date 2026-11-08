@@ -6,6 +6,7 @@ const router = Router();
 
 router.post("/", authenticate, requireRole("client"), sessions.bookSession);
 router.get("/", authenticate, sessions.listMySessions);
+router.get("/:id", authenticate, sessions.getSessionById);
 router.patch("/:id", authenticate, sessions.updateSessionStatus);
 
 export default router;

@@ -69,6 +69,7 @@ model Session {
   date        String
   startTime   String
   endTime     String
+  sessionType String @default("online")
   status      String   @default("pending")
   createdAt   DateTime @default(now())
 }

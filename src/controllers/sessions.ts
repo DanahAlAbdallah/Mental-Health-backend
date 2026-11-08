@@ -1,7 +1,7 @@
 import type { Response } from "express";
 import { prisma } from "../lib/prisma";
 import type { AuthRequest } from "../middleware/auth";
-import { isNewStatus, isValidId } from "../validators/sessions";
+import { isNewStatus, isValidId, isValidSessionType } from "../validators/sessions";
 import { isPastSlot } from "../lib/time";
 
 // A CLIENT CANNOT HOLD MORE THAN THIS MANY UNANSWERED BOOKINGS AT ONCE
@@ -32,10 +32,17 @@ async function addNames<T extends { therapistId: string; patientId: string }>(
 // BOOK A SESSION (CLIENT ONLY). THE SLOT IS RESERVED AND THE SESSION CREATED
 // TOGETHER, SO TWO CLIENTS CAN NEVER TAKE THE SAME SLOT
 export async function bookSession(req: AuthRequest, res: Response) {
-  const { slotId } = req.body ?? {};
+  const { slotId, sessionType } = req.body ?? {};
 
   if (!isValidId(slotId)) {
     return res.status(400).json({ error: "A valid slotId is required" });
+  }
+
+  // THE TYPE IS OPTIONAL, BUT IF IT IS SENT IT MUST BE VALID
+  if (sessionType !== undefined && !isValidSessionType(sessionType)) {
+    return res
+      .status(400)
+      .json({ error: "Session type must be online or in-person" });
   }
 
   const cleanSlotId = slotId.trim();
@@ -71,6 +78,21 @@ export async function bookSession(req: AuthRequest, res: Response) {
       });
     }
 
+    // DECIDE IF THE SESSION IS ONLINE OR IN PERSON
+    const profile = await prisma.therapistProfile.findFirst({
+      where: { userId: slot.therapistId },
+      select: { sessionType: true },
+    });
+
+    // "both" MEANS THE CLIENT CHOOSES. OTHERWISE THE THERAPIST'S SETTING WINS.
+    // IF THE CLIENT CHOSE NOTHING YET, IT DEFAULTS TO ONLINE
+    let chosenType: "online" | "in-person" = "online";
+    if (profile && profile.sessionType !== "both") {
+      chosenType = profile.sessionType === "in-person" ? "in-person" : "online";
+    } else if (isValidSessionType(sessionType)) {
+      chosenType = sessionType;
+    }
+
     const session = await prisma.$transaction(async (tx) => {
       // RESERVE THE SLOT ONLY IF IT IS STILL AVAILABLE
       const reservation = await tx.availabilitySlot.updateMany({
@@ -92,6 +114,7 @@ export async function bookSession(req: AuthRequest, res: Response) {
           startTime: slot.startTime,
           endTime: slot.endTime,
           status: "pending",
+          sessionType: chosenType,
         },
       });
     });
@@ -210,5 +233,115 @@ export async function updateSessionStatus(req: AuthRequest, res: Response) {
   } catch (err) {
     console.error("Failed to update session:", err);
     res.status(500).json({ error: "Failed to update session" });
+  }
+}
+
+
+// HOW LONG A SESSION LASTS, FROM "10:00" AND "11:30" TO 90
+function minutesBetween(start: string, end: string): number {
+  const [sh, sm] = start.split(":").map(Number);
+  const [eh, em] = end.split(":").map(Number);
+  return (eh ?? 0) * 60 + (em ?? 0) - ((sh ?? 0) * 60 + (sm ?? 0));
+}
+
+// ONE SESSION WITH EVERYTHING THE DETAILS PAGE NEEDS.
+// ONLY THE TWO PEOPLE IN THE SESSION (AND ADMINS) CAN OPEN IT
+export async function getSessionById(req: AuthRequest, res: Response) {
+  const { id: userId, role } = req.user!;
+  const isAdmin = role === "admin";
+
+  try {
+    const session = await prisma.session.findUnique({
+      where: { id: req.params.id as string },
+    });
+
+    // OUTSIDERS GET 404 TOO, SO WE DON'T REVEAL THAT THE SESSION EXISTS
+    if (
+      !session ||
+      (!isAdmin &&
+        session.therapistId !== userId &&
+        session.patientId !== userId)
+    ) {
+      return res.status(404).json({ error: "Session not found" });
+    }
+
+    const [therapistUser, profile, patientUser] = await Promise.all([
+      prisma.user.findUnique({
+        where: { id: session.therapistId },
+        select: { id: true, name: true, avatarUrl: true },
+      }),
+      prisma.therapistProfile.findFirst({
+        where: { userId: session.therapistId },
+      }),
+      prisma.user.findUnique({
+        where: { id: session.patientId },
+        select: {
+          id: true,
+          name: true,
+          avatarUrl: true,
+          email: true,
+          phone: true,
+        },
+      }),
+    ]);
+
+    // CONTACT DETAILS GO ONLY TO THE THERAPIST (OR AN ADMIN), AND ONLY
+    // AFTER THE SESSION IS CONFIRMED
+    const viewerIsTherapist = isAdmin || session.therapistId === userId;
+    const shareContact = viewerIsTherapist && session.status === "confirmed";
+
+    // EARLIER SESSIONS BETWEEN THIS THERAPIST AND THIS CLIENT (THERAPIST OR ADMIN ONLY).
+    // IT ONLY LOOKS AT THIS THERAPIST'S OWN SESSIONS, SO IT NEVER SHOWS WHAT THE
+    // CLIENT DID WITH OTHER THERAPISTS
+    const history = viewerIsTherapist
+      ? await prisma.session.findMany({
+          where: {
+            therapistId: session.therapistId,
+            patientId: session.patientId,
+            id: { not: session.id },
+          },
+          orderBy: [{ date: "desc" }, { startTime: "desc" }],
+          take: 20,
+          select: {
+            id: true,
+            date: true,
+            startTime: true,
+            endTime: true,
+            status: true,
+            sessionType: true,
+          },
+        })
+      : [];
+
+    return res.json({
+      ...session,
+      durationMinutes: minutesBetween(session.startTime, session.endTime),
+      history,
+      therapist: {
+        id: session.therapistId,
+        name: therapistUser?.name ?? "Therapist",
+        avatarUrl: therapistUser?.avatarUrl ?? null,
+        bio: profile?.bio ?? null,
+        specialties: profile?.specialties ?? [],
+        languages: profile?.languages ?? [],
+        yearsOfExperience: profile?.yearsOfExperience ?? null,
+        sessionPrice: profile?.sessionPrice ?? null,
+        location: profile?.location ?? null,
+      },
+      patient: {
+        id: session.patientId,
+        name: patientUser?.name ?? "Client",
+        avatarUrl: patientUser?.avatarUrl ?? null,
+        ...(shareContact
+          ? {
+              email: patientUser?.email ?? null,
+              phone: patientUser?.phone ?? null,
+            }
+          : {}),
+      },
+    });
+  } catch (err) {
+    console.error("Failed to fetch session:", err);
+    return res.status(500).json({ error: "Failed to fetch session" });
   }
 }

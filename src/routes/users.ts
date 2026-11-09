@@ -11,7 +11,8 @@ router.get("/therapists/:id", users.getTherapist);
 // LOGGED-IN THERAPIST
 router.get("/me/profile", authenticate, requireRole("therapist"), users.getMyProfile);
 router.put("/me/profile", authenticate, requireRole("therapist"), users.saveMyProfile);
-
+// Public / Client endpoint to fetch any user details by ID
+router.get("/:id", users.getUserDetails);
 // ANY LOGGED-IN USER
 router.put("/me", authenticate, users.updateMe);
 

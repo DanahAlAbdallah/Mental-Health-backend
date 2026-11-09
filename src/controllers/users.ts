@@ -241,3 +241,58 @@ export async function updateMe(req: AuthRequest, res: Response) {
     res.status(500).json({ error: "Failed to update profile" });
   }
 }
+
+
+export async function getUserDetails(req: Request, res: Response) {
+  try {
+    const rawId = req.params.id;
+    // Ensure id is strictly a single string
+    const id = Array.isArray(rawId) ? rawId[0] : rawId;
+
+    if (!id) {
+      return res.status(400).json({ error: "Invalid user ID" });
+    }
+
+    const user = await prisma.user.findUnique({
+      where: { id },
+      include: {
+        therapistProfile: true,
+      },
+    });
+
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    if (user.role === "therapist") {
+      return res.json({
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        phone: user.phone ?? undefined,
+        avatarUrl: user.avatarUrl ?? undefined,
+        createdAt: user.createdAt.toISOString(),
+        profile: user.therapistProfile ?? {
+          userId: user.id,
+          bio: "",
+          specialties: [],
+          languages: [],
+          sessionType: "online",
+        },
+      });
+    }
+
+    return res.json({
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+      phone: user.phone ?? undefined,
+      avatarUrl: user.avatarUrl ?? undefined,
+      createdAt: user.createdAt.toISOString(),
+    });
+  } catch (err) {
+    console.error("Failed to fetch user details:", err);
+    return res.status(500).json({ error: "Failed to fetch user details" });
+  }}

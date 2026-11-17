@@ -3,7 +3,12 @@ import { prisma } from "../lib/prisma";
 import type { AuthRequest } from "../middleware/auth";
 import { validateMeInput, validateProfileInput } from "../validators/users";
 
-// THE USER FIELDS IT IS SAFE TO SEND BACK TO THE USER THEMSELVES (NEVER THE PASSWORD)
+// ======================================================
+// SELECT OBJECTS
+// ======================================================
+
+// Private fields: only the account owner or authorized admin.
+// NEVER include password or passwordHash.
 const privateUserSelect = {
   id: true,
   name: true,
@@ -14,40 +19,102 @@ const privateUserSelect = {
   createdAt: true,
 };
 
-// THE USER FIELDS THAT ARE PUBLIC, FOR THE THERAPISTS PAGES (NO EMAIL, NO PHONE)
+// Public therapist information.
+// Explicitly select fields instead of returning the entire profile.
 const publicTherapistSelect = {
   id: true,
   name: true,
+  role: true,
   avatarUrl: true,
-  therapistProfile: true,
+  therapistProfile: {
+    select: {
+      bio: true,
+      specialties: true,
+      languages: true,
+      yearsOfExperience: true,
+      sessionPrice: true,
+      sessionType: true,
+      location: true,
+    },
+  },
 };
 
-// SENDS "therapistProfile" AS "profile", WHICH IS WHAT THE FRONTEND EXPECTS
-function toPublicTherapist<T extends { therapistProfile: unknown }>(
-  therapist: T,
-) {
-  const { therapistProfile, ...rest } = therapist;
-  return { ...rest, profile: therapistProfile };
+// Fields returned to a therapist when managing their own profile.
+const therapistProfileSelect = {
+  userId: true,
+  bio: true,
+  specialties: true,
+  languages: true,
+  yearsOfExperience: true,
+  sessionPrice: true,
+  sessionType: true,
+  location: true,
+};
+
+// ======================================================
+// HELPER FUNCTIONS
+// ======================================================
+
+// Convert therapistProfile into "profile" for React.
+function toPublicTherapist(therapist: {
+  id: string;
+  name: string;
+  role: string;
+  avatarUrl: string | null;
+  therapistProfile: {
+    bio: string;
+    specialties: string[];
+    languages: string[];
+    yearsOfExperience: number | null;
+    sessionPrice: number | null;
+    sessionType: string;
+    location: string | null;
+  } | null;
+}) {
+  return {
+    id: therapist.id,
+    name: therapist.name,
+    role: therapist.role,
+    avatarUrl: therapist.avatarUrl ?? undefined,
+    profile: therapist.therapistProfile ?? {
+      bio: "",
+      specialties: [],
+      languages: [],
+      yearsOfExperience: null,
+      sessionPrice: null,
+      sessionType: "online",
+      location: null,
+    },
+  };
 }
 
-// ONLY NON EMPTY STRINGS, NO DUPLICATES, MAX 10
+// Clean arrays: remove empty strings, duplicates and limit to 10.
 function cleanList(value: unknown): string[] | undefined {
   if (!Array.isArray(value)) return undefined;
+
   const items = value
     .filter((item): item is string => typeof item === "string")
     .map((item) => item.trim())
     .filter(Boolean);
+
   return [...new Set(items)].slice(0, 10);
 }
 
-// null -> null (CLEAR IT), "  text " -> "text", "" -> null, MISSING -> undefined (DON'T TOUCH)
+// null = clear the field
+// string = trim the value
+// empty string = null
+// undefined = leave unchanged
 function cleanOptionalText(value: unknown): string | null | undefined {
   if (value === null) return null;
-  if (typeof value === "string") return value.trim() || null;
+
+  if (typeof value === "string") {
+    return value.trim() || null;
+  }
+
   return undefined;
 }
 
-// PRISMA ERRORS HAVE A `code` (P2025 = RECORD NOT FOUND)
+// Check Prisma error codes.
 function hasCode(err: unknown, code: string): boolean {
   return (
     typeof err === "object" &&
@@ -56,43 +123,134 @@ function hasCode(err: unknown, code: string): boolean {
   );
 }
 
-// ---------- ADMIN ----------
+// Check admin permissions inside controllers too.
+// Route middleware is still required.
+function isAdmin(req: AuthRequest): boolean {
+  return req.user?.role === "admin";
+}
 
-export async function listUsers(_req: Request, res: Response) {
+// Return a default therapist profile when one does not exist.
+function emptyTherapistProfile(userId: string) {
+  return {
+    userId,
+    bio: "",
+    specialties: [],
+    languages: [],
+    yearsOfExperience: null,
+    sessionPrice: null,
+    sessionType: "online",
+    location: null,
+  };
+}
+
+// ======================================================
+// ADMIN
+// ======================================================
+
+// GET /api/users
+// Admin can list users, including authorized contact details.
+export async function listUsers(req: AuthRequest, res: Response) {
+  if (!isAdmin(req)) {
+    return res.status(403).json({ error: "Forbidden" });
+  }
+
   try {
     const users = await prisma.user.findMany({
       select: privateUserSelect,
       orderBy: { createdAt: "desc" },
     });
-    res.json(users);
+
+    return res.json(users);
   } catch (err) {
     console.error("Failed to fetch users:", err);
-    res.status(500).json({ error: "Failed to fetch users" });
+
+    return res.status(500).json({
+      error: "Failed to fetch users",
+    });
   }
 }
 
-export async function deleteUser(req: AuthRequest, res: Response) {
-  const id = req.params.id as string;
+// GET /api/users/admin/:id
+// Admin can view one user's private account information.
+export async function getAdminUser(req: AuthRequest, res: Response) {
+  if (!isAdmin(req)) {
+    return res.status(403).json({ error: "Forbidden" });
+  }
 
-  // AN ADMIN DELETING THEMSELVES BY MISTAKE COULD LEAVE THE APP WITH NO ADMIN
-  if (req.user!.id === id) {
-    return res.status(400).json({ error: "You cannot delete your own account" });
+  const id = req.params.id;
+
+  if (typeof id !== "string" || !id.trim()) {
+    return res.status(400).json({ error: "Invalid user ID" });
   }
 
   try {
-    await prisma.user.delete({ where: { id } });
-    res.status(204).send();
-  } catch (err) {
-    if (hasCode(err, "P2025")) {
-      return res.status(404).json({ error: "User not found" });
+    const user = await prisma.user.findUnique({
+      where: { id },
+      select: privateUserSelect,
+    });
+
+    if (!user) {
+      return res.status(404).json({
+        error: "User not found",
+      });
     }
-    console.error("Failed to delete user:", err);
-    res.status(500).json({ error: "Failed to delete user" });
+
+    return res.json(user);
+  } catch (err) {
+    console.error("Failed to fetch admin user:", err);
+
+    return res.status(500).json({
+      error: "Failed to fetch user",
+    });
   }
 }
 
-// ---------- PUBLIC ----------
+// DELETE /api/users/:id
+// Admin can delete users, but cannot delete their own account.
+export async function deleteUser(req: AuthRequest, res: Response) {
+  if (!isAdmin(req)) {
+    return res.status(403).json({ error: "Forbidden" });
+  }
 
+  const id = req.params.id;
+
+  if (typeof id !== "string" || !id.trim()) {
+    return res.status(400).json({ error: "Invalid user ID" });
+  }
+
+  if (req.user!.id === id) {
+    return res.status(400).json({
+      error: "You cannot delete your own account",
+    });
+  }
+
+  try {
+    await prisma.user.delete({
+      where: { id },
+    });
+
+    return res.status(204).send();
+  } catch (err) {
+    if (hasCode(err, "P2025")) {
+      return res.status(404).json({
+        error: "User not found",
+      });
+    }
+
+    console.error("Failed to delete user:", err);
+
+    return res.status(500).json({
+      error: "Failed to delete user",
+    });
+  }
+}
+
+// ======================================================
+// PUBLIC THERAPIST PROFILES
+// ======================================================
+
+// GET /api/users/therapists
+// Anyone can browse public therapist information.
 export async function listTherapists(_req: Request, res: Response) {
   try {
     const therapists = await prisma.user.findMany({
@@ -100,121 +258,226 @@ export async function listTherapists(_req: Request, res: Response) {
       select: publicTherapistSelect,
       orderBy: { name: "asc" },
     });
-    res.json(therapists.map(toPublicTherapist));
+
+    return res.json(therapists.map(toPublicTherapist));
   } catch (err) {
     console.error("Failed to fetch therapists:", err);
-    res.status(500).json({ error: "Failed to fetch therapists" });
+
+    return res.status(500).json({
+      error: "Failed to fetch therapists",
+    });
   }
 }
 
+// GET /api/users/therapists/:id
+// Anyone can view one therapist's public profile.
 export async function getTherapist(req: Request, res: Response) {
+  const id = req.params.id;
+
+  if (typeof id !== "string" || !id.trim()) {
+    return res.status(400).json({
+      error: "Invalid therapist ID",
+    });
+  }
+
   try {
     const therapist = await prisma.user.findFirst({
-      where: { id: req.params.id as string, role: "therapist" },
+      where: {
+        id,
+        role: "therapist",
+      },
       select: publicTherapistSelect,
     });
+
     if (!therapist) {
-      return res.status(404).json({ error: "Therapist not found" });
+      return res.status(404).json({
+        error: "Therapist not found",
+      });
     }
-    res.json(toPublicTherapist(therapist));
+
+    return res.json(toPublicTherapist(therapist));
   } catch (err) {
     console.error("Failed to fetch therapist:", err);
-    res.status(500).json({ error: "Failed to fetch therapist" });
+
+    return res.status(500).json({
+      error: "Failed to fetch therapist",
+    });
   }
 }
 
-// ---------- LOGGED-IN THERAPIST ----------
+// GET /api/users/:id
+// Public endpoint: therapist profiles only.
+// Clients and admins are not exposed through this endpoint.
+export async function getUserDetails(req: Request, res: Response) {
+  const id = req.params.id;
 
+  if (typeof id !== "string" || !id.trim()) {
+    return res.status(400).json({
+      error: "Invalid user ID",
+    });
+  }
+
+  try {
+    const therapist = await prisma.user.findFirst({
+      where: {
+        id,
+        role: "therapist",
+      },
+      select: publicTherapistSelect,
+    });
+
+    if (!therapist) {
+      return res.status(404).json({
+        error: "User not found",
+      });
+    }
+
+    return res.json(toPublicTherapist(therapist));
+  } catch (err) {
+    console.error("Failed to fetch public user details:", err);
+
+    return res.status(500).json({
+      error: "Failed to fetch user details",
+    });
+  }
+}
+
+// ======================================================
+// LOGGED-IN THERAPIST
+// ======================================================
+
+// GET /api/users/me/profile
+// Therapist can view their own professional profile.
 export async function getMyProfile(req: AuthRequest, res: Response) {
+  if (req.user?.role !== "therapist") {
+    return res.status(403).json({ error: "Forbidden" });
+  }
+
   try {
     const profile = await prisma.therapistProfile.findUnique({
-      where: { userId: req.user!.id },
-    });
-    res.json(
-      profile ?? {
-        userId: req.user!.id,
-        bio: "",
-        specialties: [],
-        languages: [],
-        sessionType: "online",
+      where: {
+        userId: req.user.id,
       },
-    );
+      select: therapistProfileSelect,
+    });
+
+    return res.json(profile ?? emptyTherapistProfile(req.user.id));
   } catch (err) {
     console.error("Failed to fetch profile:", err);
-    res.status(500).json({ error: "Failed to fetch profile" });
+
+    return res.status(500).json({
+      error: "Failed to fetch profile",
+    });
   }
 }
 
-// THE OWNER COMES FROM THE TOKEN, NEVER FROM THE REQUEST
+// PUT /api/users/me/profile
+// Therapist can update only their own professional profile.
 export async function saveMyProfile(req: AuthRequest, res: Response) {
+  if (req.user?.role !== "therapist") {
+    return res.status(403).json({ error: "Forbidden" });
+  }
+
   const body = req.body ?? {};
 
   const error = validateProfileInput(body);
-  if (error) return res.status(400).json({ error });
+
+  if (error) {
+    return res.status(400).json({ error });
+  }
 
   const data = {
-    bio: body.bio?.trim(),
+    bio: body.bio.trim(),
     specialties: cleanList(body.specialties),
     languages: cleanList(body.languages),
     yearsOfExperience: body.yearsOfExperience,
     sessionPrice: body.sessionPrice,
     sessionType: body.sessionType,
-    location:
-      typeof body.location === "string" ? body.location.trim() : undefined,
+    location: cleanOptionalText(body.location),
   };
 
   try {
     const profile = await prisma.therapistProfile.upsert({
-      where: { userId: req.user!.id },
+      where: {
+        userId: req.user.id,
+      },
       update: data,
-      create: { userId: req.user!.id, ...data },
+      create: {
+        userId: req.user.id,
+        ...data,
+      },
+      select: therapistProfileSelect,
     });
-    res.json(profile);
+
+    return res.json(profile);
   } catch (err) {
     console.error("Failed to save profile:", err);
-    res.status(500).json({ error: "Failed to save profile" });
+
+    return res.status(500).json({
+      error: "Failed to save profile",
+    });
   }
 }
 
-// ---------- ANY LOGGED-IN USER ----------
+// ======================================================
+// ANY LOGGED-IN USER
+// ======================================================
 
-// ONLY THE USER THEMSELVES OR AN ADMIN
-export async function getUser(req: AuthRequest, res: Response) {
-  const isOwnProfile = req.user!.id === req.params.id;
-  const isAdmin = req.user!.role === "admin";
-
-  if (!isOwnProfile && !isAdmin) {
-    return res.status(403).json({ error: "Forbidden" });
+// GET /api/users/me
+// User can retrieve their own private account information.
+export async function getMyAccount(req: AuthRequest, res: Response) {
+  if (!req.user?.id) {
+    return res.status(401).json({
+      error: "Authentication required",
+    });
   }
 
   try {
     const user = await prisma.user.findUnique({
-      where: { id: req.params.id as string },
+      where: {
+        id: req.user.id,
+      },
       select: privateUserSelect,
     });
+
     if (!user) {
-      return res.status(404).json({ error: "User not found" });
+      return res.status(404).json({
+        error: "User not found",
+      });
     }
-    res.json(user);
+
+    return res.json(user);
   } catch (err) {
-    console.error("Failed to fetch user:", err);
-    res.status(500).json({ error: "Failed to fetch user" });
+    console.error("Failed to fetch account:", err);
+
+    return res.status(500).json({
+      error: "Failed to fetch account",
+    });
   }
 }
 
-// UPDATES THE LOGGED-IN USER'S NAME, PHONE AND PHOTO.
-// ROLE, PASSWORD AND EMAIL CANNOT BE CHANGED HERE
+// PUT /api/users/me
+// User can update their own name, phone and avatar.
+// Cannot change role, email or password through this endpoint.
 export async function updateMe(req: AuthRequest, res: Response) {
+  if (!req.user?.id) {
+    return res.status(401).json({
+      error: "Authentication required",
+    });
+  }
+
   const body = req.body ?? {};
 
   const error = validateMeInput(body);
-  if (error) return res.status(400).json({ error });
 
-  const id = req.user!.id;
-  const newName = (body.name as string).trim();
+  if (error) {
+    return res.status(400).json({ error });
+  }
+
+  const id = req.user.id;
+  const newName = body.name.trim();
 
   try {
-    // BOTH UPDATES SUCCEED TOGETHER OR NEITHER DOES
     const user = await prisma.$transaction(async (tx) => {
       const updatedUser = await tx.user.update({
         where: { id },
@@ -226,7 +489,7 @@ export async function updateMe(req: AuthRequest, res: Response) {
         select: privateUserSelect,
       });
 
-      // THE NAME SHOWN ON THEIR ARTICLES CHANGES TOO
+      // Keep article author names synchronized.
       await tx.article.updateMany({
         where: { authorId: id },
         data: { author: newName },
@@ -235,64 +498,12 @@ export async function updateMe(req: AuthRequest, res: Response) {
       return updatedUser;
     });
 
-    res.json(user);
+    return res.json(user);
   } catch (err) {
     console.error("Failed to update own profile:", err);
-    res.status(500).json({ error: "Failed to update profile" });
+
+    return res.status(500).json({
+      error: "Failed to update profile",
+    });
   }
 }
-
-
-export async function getUserDetails(req: Request, res: Response) {
-  try {
-    const rawId = req.params.id;
-    // Ensure id is strictly a single string
-    const id = Array.isArray(rawId) ? rawId[0] : rawId;
-
-    if (!id) {
-      return res.status(400).json({ error: "Invalid user ID" });
-    }
-
-    const user = await prisma.user.findUnique({
-      where: { id },
-      include: {
-        therapistProfile: true,
-      },
-    });
-
-    if (!user) {
-      return res.status(404).json({ error: "User not found" });
-    }
-
-    if (user.role === "therapist") {
-      return res.json({
-        id: user.id,
-        name: user.name,
-        email: user.email,
-        role: user.role,
-        phone: user.phone ?? undefined,
-        avatarUrl: user.avatarUrl ?? undefined,
-        createdAt: user.createdAt.toISOString(),
-        profile: user.therapistProfile ?? {
-          userId: user.id,
-          bio: "",
-          specialties: [],
-          languages: [],
-          sessionType: "online",
-        },
-      });
-    }
-
-    return res.json({
-      id: user.id,
-      name: user.name,
-      email: user.email,
-      role: user.role,
-      phone: user.phone ?? undefined,
-      avatarUrl: user.avatarUrl ?? undefined,
-      createdAt: user.createdAt.toISOString(),
-    });
-  } catch (err) {
-    console.error("Failed to fetch user details:", err);
-    return res.status(500).json({ error: "Failed to fetch user details" });
-  }}

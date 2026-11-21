@@ -28,6 +28,8 @@ model User {
   role              String
   phone             String?
   avatarUrl         String?
+  emailVerified Boolean @default(false)
+  emailVerificationTokens EmailVerificationToken[]
   passwordChangedAt DateTime? // Security tracking: invalidates old JWTs after a password reset
   createdAt         DateTime  @default(now())
 
@@ -82,4 +84,17 @@ model PasswordResetToken {
   expiresAt DateTime
   usedAt    DateTime?
   createdAt DateTime  @default(now())
+}
+
+model EmailVerificationToken {
+  id        String    @id @default(uuid())
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tokenHash String    @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+
+
+  @@index([userId])
 }

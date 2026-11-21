@@ -3,15 +3,16 @@ import bcrypt from "bcrypt"; // USE "bcryptjs" IF THAT IS WHAT YOU HAVE INSTALLE
 import jwt from "jsonwebtoken";
 import { prisma } from "../lib/prisma";
 import { JWT_SECRET } from "../config/env";
-
-const DUMMY_HASH = bcrypt.hashSync("not-a-real-password", 10);
+import { sendVerificationEmail,sendPasswordResetEmail } from "../lib/mail";
 import {
   isSignupRole,
   isValidEmail,
   validatePassword,
 } from "../validators/auth";
-import { generatePasswordResetToken, hashToken } from "../lib/tokens";
-import { sendPasswordResetEmail } from "../lib/mail";
+import { generateToken, hashToken } from "../lib/tokens";
+
+
+const DUMMY_HASH = bcrypt.hashSync("not-a-real-password", 10);
 // PRISMA ERRORS HAVE A `code`. P2002 = UNIQUE CONSTRAINT FAILED (EMAIL ALREADY EXISTS).
 // CHECKING THE CODE DIRECTLY WORKS IN EVERY PRISMA VERSION.
 function isUniqueConstraintError(err: unknown): boolean {
@@ -23,31 +24,37 @@ function isUniqueConstraintError(err: unknown): boolean {
   );
 }
 
+
 // SIGNUP FUNCTION
 export async function signup(req: Request, res: Response) {
   const { name, email, password, role } = req.body ?? {};
 
-  // 1. EVERYTHING MUST BE A STRING BEFORE WE USE IT
+  // 1. Validate name
   if (typeof name !== "string" || !name.trim() || name.trim().length > 100) {
     return res.status(400).json({ error: "Name is required" });
   }
+
+  // 2. Validate email
   if (typeof email !== "string" || !email.trim()) {
     return res.status(400).json({ error: "Email is required" });
   }
 
-  // 2. SAME EMAIL = SAME ACCOUNT: " Ali@Mail.com " BECOMES "ali@mail.com"
   const normalizedEmail = email.trim().toLowerCase();
+
   if (!isValidEmail(normalizedEmail)) {
     return res.status(400).json({ error: "Email is not valid" });
   }
 
-  // 3. ROLE MUST BE ON OUR WHITELIST, SO NOBODY CAN CHOOSE "admin"
+  // 3. Validate role
   if (!isSignupRole(role)) {
-    return res.status(400).json({ error: "Role must be client or therapist" });
+    return res.status(400).json({
+      error: "Role must be client or therapist",
+    });
   }
 
-  // 4. PASSWORD RULES
+  // 4. Validate password
   const passwordError = validatePassword(password);
+
   if (passwordError) {
     return res.status(400).json({ error: passwordError });
   }
@@ -55,26 +62,49 @@ export async function signup(req: Request, res: Response) {
   try {
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // 5. NO findUnique FIRST. THE DATABASE'S UNIQUE RULE DECIDES, SO TWO
-    //    REQUESTS AT THE SAME TIME CAN'T BOTH SUCCEED.
-    const user = await prisma.user.create({
-      data: {
-        name: name.trim(),
-        email: normalizedEmail,
-        password: hashedPassword,
-        role, // SAFE: TYPESCRIPT KNOWS IT IS "client" | "therapist"
-      },
+    // 5. Generate a verification token
+    const { rawToken, tokenHash } = generateToken();
+
+    // 6. Create the user and verification token together
+    const user = await prisma.$transaction(async (tx) => {
+      const newUser = await tx.user.create({
+        data: {
+          name: name.trim(),
+          email: normalizedEmail,
+          password: hashedPassword,
+          role,
+          // emailVerified defaults to false
+        },
+      });
+
+      await tx.emailVerificationToken.create({
+        data: {
+          userId: newUser.id,
+          tokenHash,
+          expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000),
+        },
+      });
+
+      return newUser;
     });
 
-    // 6. PIN THE ALGORITHM
-    const token = jwt.sign({ id: user.id, role: user.role }, JWT_SECRET, {
-      expiresIn: "7d",
-      algorithm: "HS256",
-    });
+    // 7. Send the verification email
+    try {
+      await sendVerificationEmail(user.email, rawToken);
+    } catch (emailError) {
+      console.error("Verification email delivery failed:", emailError);
 
-    // 7. BUILD THE RESPONSE BY HAND, SO THE PASSWORD HASH IS NEVER SENT
+      // Account exists, but email delivery failed.
+      // We will implement a resend endpoint later.
+      return res.status(503).json({
+        error: "Account created, but verification email could not be sent. Please try again later.",
+      });
+    }
+
+    // 8. Do NOT issue a JWT yet.
+    // The user must verify their email first.
     return res.status(201).json({
-      token,
+      message: "Account created successfully. Please check your email to verify your account.",
       user: {
         id: user.id,
         name: user.name,
@@ -82,37 +112,137 @@ export async function signup(req: Request, res: Response) {
         avatarUrl: user.avatarUrl,
         email: user.email,
         role: user.role,
+        emailVerified: user.emailVerified,
       },
     });
+
   } catch (err) {
     if (isUniqueConstraintError(err)) {
-      return res.status(400).json({ error: "Email already registered" });
+      return res.status(400).json({
+        error: "Email already registered",
+      });
     }
+
     console.error("Signup failed:", err);
-    return res.status(500).json({ error: "Failed to create account" });
+
+    return res.status(500).json({
+      error: "Failed to create account",
+    });
   }
 }
 
+export async function verifyEmail(req: Request, res: Response) {
+  const { token } = req.body ?? {};
+
+  // 1. Validate token
+  if (typeof token !== "string" || !token.trim()) {
+    return res.status(400).json({
+      error: "Verification token is required",
+    });
+  }
+
+  try {
+    // 2. Hash the incoming token
+    const tokenHash = hashToken(token.trim());
+
+    // 3. Find the matching token
+    const verificationRecord =
+      await prisma.emailVerificationToken.findUnique({
+        where: { tokenHash },
+      });
+
+    // 4. Reject invalid tokens
+    if (!verificationRecord) {
+      return res.status(400).json({
+        error: "Invalid or expired verification link",
+      });
+    }
+
+    const now = new Date();
+
+    // 5. Reject expired or previously used tokens
+    if (
+      verificationRecord.usedAt ||
+      verificationRecord.expiresAt <= now
+    ) {
+      return res.status(400).json({
+        error: "Invalid or expired verification link",
+      });
+    }
+
+    // 6. Atomically consume the token and verify the account
+    const result = await prisma.$transaction(async (tx) => {
+      const consumedToken =
+        await tx.emailVerificationToken.updateMany({
+          where: {
+            id: verificationRecord.id,
+            usedAt: null,
+            expiresAt: { gt: now },
+          },
+          data: {
+            usedAt: now,
+          },
+        });
+
+      // Another request may already have consumed it
+      if (consumedToken.count !== 1) {
+        return false;
+      }
+
+      await tx.user.update({
+        where: { id: verificationRecord.userId },
+        data: { emailVerified: true },
+      });
+
+      return true;
+    });
+
+    if (!result) {
+      return res.status(400).json({
+        error: "Invalid or expired verification link",
+      });
+    }
+
+    // 7. Success
+    return res.status(200).json({
+      message: "Email verified successfully. You can now log in.",
+    });
+
+  } catch (error) {
+    console.error("EMAIL VERIFICATION ERROR:", error);
+
+    return res.status(500).json({
+      error: "An unexpected error occurred during email verification",
+    });
+  }
+}
+
+
+
 // LOGIN FUNCTION
+
 export async function login(req: Request, res: Response) {
   const { email, password } = req.body ?? {};
 
-  // 1. BOTH MUST BE STRINGS (AN OBJECT OR NUMBER WOULD MAKE bcrypt THROW A 500)
+  // 1. Validate input types
   if (
     typeof email !== "string" ||
     typeof password !== "string" ||
     !email.trim() ||
     !password
   ) {
-    return res.status(400).json({ error: "Email and password are required" });
+    return res.status(400).json({
+      error: "Email and password are required",
+    });
   }
 
-  // 2. SAME NORMALIZATION AS SIGNUP, OTHERWISE "Ali@Mail.com" CAN'T LOG IN
   const normalizedEmail = email.trim().toLowerCase();
 
-  // 3. SIGNUP NEVER ALLOWS PASSWORDS OVER 72, SO REJECT ABSURD INPUT EARLY
+  // 2. Reject passwords that exceed bcrypt's limit
   if (password.length > 72) {
-    return res.status(401).json({ error: "Invalid email or password" });
+    return res.status(401).json({
+      error: "Invalid email or password",
+    });
   }
 
   try {
@@ -120,25 +250,41 @@ export async function login(req: Request, res: Response) {
       where: { email: normalizedEmail },
     });
 
-    // 4. ALWAYS RUN bcrypt.compare, EVEN IF THE USER DOESN'T EXIST,
-    //    SO BOTH CASES TAKE ABOUT THE SAME TIME
+    // 3. Always compare passwords, even if the user doesn't exist
+    // Use DUMMY_HASH if the user has no password (e.g. Google-only account)
+    const passwordHash = user?.password ?? DUMMY_HASH;
+
     const validPassword = await bcrypt.compare(
       password,
-      (user ? user.password : DUMMY_HASH) as string,
+      passwordHash,
     );
 
-    // 5. SAME GENERIC MESSAGE FOR "NO USER" AND "WRONG PASSWORD"
-    if (!user || !validPassword) {
-      return res.status(401).json({ error: "Invalid email or password" });
+    // 4. Generic error for invalid credentials
+    if (!user || !user.password || !validPassword) {
+      return res.status(401).json({
+        error: "Invalid email or password",
+      });
     }
 
-    // 6. PIN THE ALGORITHM
-    const token = jwt.sign({ id: user.id, role: user.role }, JWT_SECRET, {
-      expiresIn: "7d",
-      algorithm: "HS256",
-    });
+    // 5. Require email verification before issuing a JWT
+    if (!user.emailVerified) {
+      return res.status(403).json({
+        error: "Please verify your email before logging in.",
+        code: "EMAIL_NOT_VERIFIED",
+      });
+    }
 
-    // 7. BUILD THE RESPONSE BY HAND, SO THE PASSWORD HASH IS NEVER SENT
+    // 6. Only verified users receive a JWT
+    const token = jwt.sign(
+      { id: user.id, role: user.role },
+      JWT_SECRET,
+      {
+        expiresIn: "7d",
+        algorithm: "HS256",
+      },
+    );
+
+    // 7. Return safe user information
     return res.json({
       token,
       user: {
@@ -148,13 +294,16 @@ export async function login(req: Request, res: Response) {
         avatarUrl: user.avatarUrl,
         email: user.email,
         role: user.role,
+        emailVerified: user.emailVerified,
       },
     });
+
   } catch (error) {
     console.error("LOGIN ERROR:", error);
-    return res
-      .status(500)
-      .json({ error: "An unexpected error occurred during login" });
+
+    return res.status(500).json({
+      error: "An unexpected error occurred during login",
+    });
   }
 }
 
@@ -172,7 +321,7 @@ export async function forgotPassword(req: Request, res: Response) {
 
     if (user) {
       // 2. Generate the reset token
-      const { rawToken, tokenHash } = generatePasswordResetToken();
+      const { rawToken, tokenHash } = generateToken();
 
       // 3. Set expiration to 30 minutes from now
       const expiresAt = new Date(Date.now() + 30 * 60 * 1000);

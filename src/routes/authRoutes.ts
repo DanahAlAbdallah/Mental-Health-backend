@@ -4,6 +4,7 @@ import {
   login,
   resetPassword,
   signup,
+  verifyEmail
 } from "../controllers/auth";
 
 const router = Router();
@@ -11,8 +12,11 @@ const router = Router();
 router.post("/signup", signup);
 router.post("/login", login);
 
-// New password reset routes
+//RESET PASSWORD
 router.post("/forgot-password", forgotPassword);
 router.post("/reset-password", resetPassword);
+
+// ACCOUNT VERIFICATION
+router.post("/verify-email", verifyEmail);
 
 export default router;

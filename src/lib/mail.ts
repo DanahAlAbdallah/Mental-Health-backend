@@ -2,6 +2,7 @@ import { Resend } from "resend";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
+// FUNCTION FOR RESSETING PASSWORD
 export async function sendPasswordResetEmail(email: string, token: string) {
   const resetLink = `${process.env.FRONTEND_URL}/reset-password?token=${token}`;
 
@@ -42,5 +43,60 @@ export async function sendPasswordResetEmail(email: string, token: string) {
   } catch (error) {
     console.error("Failed to send password reset email via Resend:", error);
     throw new Error("Failed to send email");
+  }
+}
+
+// FUNCTION FOR VERIFYING ACCOUNT
+export async function sendVerificationEmail(email: string, token: string) {
+  const verificationLink = `${process.env.FRONTEND_URL}/verify-email?token=${token}`;
+
+  const fromEmail =
+    process.env.NODE_ENV === "production"
+      ? "onboarding@resend.dev"
+      : "onboarding@resend.dev";
+
+  try {
+    const { data, error } = await resend.emails.send({
+      from: fromEmail,
+      to: email,
+      subject: "Verify Your Athar Account",
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto;">
+          <h2>Welcome to Athar!</h2>
+
+          <p>Thank you for creating an account.</p>
+
+          <p>Please verify your email address by clicking the button below:</p>
+
+          <a
+            href="${verificationLink}"
+            style="
+              display: inline-block;
+              padding: 12px 24px;
+              background-color: #526B5B;
+              color: white;
+              text-decoration: none;
+              border-radius: 6px;
+            "
+          >
+            Verify My Email
+          </a>
+
+          <p>This link expires in 24 hours.</p>
+
+          <p>If you didn't create an account, you can ignore this email.</p>
+        </div>
+      `,
+    });
+
+    if (error) {
+      console.error("Resend verification email error:", error);
+      throw new Error("Failed to send verification email");
+    }
+
+    console.log("Verification email sent successfully:", data);
+  } catch (error) {
+    console.error("Failed to send verification email:", error);
+    throw new Error("Failed to send verification email");
   }
 }

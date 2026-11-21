@@ -10,40 +10,57 @@ import {
 
 // ALL ARTICLES, WITH AN OPTIONAL SEARCH THAT IGNORES UPPERCASE AND LOWERCASE.
 // RETURNS AT MOST 50 AT A TIME (?limit=20&page=2 TO CHANGE IT, MAX 100 PER PAGE)
+
 export async function listArticles(req: Request, res: Response) {
   const rawSearch = req.query.search;
 
-  // THE URL VALUE CAN BE A LIST (?search=a&search=b), SO CHECK IT IS TEXT
+  // Check that search is a string
   if (rawSearch !== undefined && typeof rawSearch !== "string") {
     return res.status(400).json({ error: "Search must be text" });
   }
+
   const search = rawSearch?.trim().slice(0, MAX_SEARCH_LENGTH) || undefined;
 
   const limit = parsePositiveInt(req.query.limit, 50, 100);
   const page = parsePositiveInt(req.query.page, 1, 10000);
 
   try {
-    const articles = await prisma.article.findMany({
-      where: search
-        ? {
-            OR: [
-              { title: { contains: search, mode: "insensitive" } },
-              { content: { contains: search, mode: "insensitive" } },
-              { category: { contains: search, mode: "insensitive" } },
-            ],
-          }
-        : {},
-      orderBy: [{ createdAt: "desc" }, { id: "desc" }],
-      take: limit,
-      skip: (page - 1) * limit,
-    });
+    // Apply the same filters to both queries
+    const where = search
+      ? {
+          OR: [
+            { title: { contains: search, mode: "insensitive" as const } },
+            { content: { contains: search, mode: "insensitive" as const } },
+            { category: { contains: search, mode: "insensitive" as const } },
+          ],
+        }
+      : {};
 
-    res.json(articles);
+    // Fetch articles and count matching articles
+    const [articles, totalArticles] = await Promise.all([
+      prisma.article.findMany({
+        where,
+        orderBy: [{ createdAt: "desc" }, { id: "desc" }],
+        take: limit,
+        skip: (page - 1) * limit,
+      }),
+
+      prisma.article.count({ where }),
+    ]);
+
+    // Return articles with pagination information
+    res.json({
+      articles,
+      currentPage: page,
+      totalArticles,
+      totalPages: Math.ceil(totalArticles / limit),
+    });
   } catch (err) {
     console.error("Failed to fetch articles:", err);
     res.status(500).json({ error: "Failed to fetch articles" });
   }
 }
+
 
 // THE LOGGED IN THERAPIST'S OWN ARTICLES
 export async function listMyArticles(req: AuthRequest, res: Response) {

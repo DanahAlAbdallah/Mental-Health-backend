@@ -2,6 +2,7 @@ import type { Request, Response } from "express";
 import { prisma } from "../lib/prisma";
 import type { AuthRequest } from "../middleware/auth";
 import { validateMeInput, validateProfileInput } from "../validators/users";
+import { parsePositiveInt } from "../validators/articles";
 
 // ======================================================
 // SELECT OBJECTS
@@ -251,15 +252,84 @@ export async function deleteUser(req: AuthRequest, res: Response) {
 
 // GET /api/users/therapists
 // Anyone can browse public therapist information.
-export async function listTherapists(_req: Request, res: Response) {
+export async function listTherapists(req: Request, res: Response) {
+  const rawSearch = req.query.search;
+
+  if (rawSearch !== undefined && typeof rawSearch !== "string") {
+    return res.status(400).json({ error: "Search must be text" });
+  }
+
+  const search = rawSearch?.trim().slice(0, 100) || undefined;
+
+  const limit = parsePositiveInt(req.query.limit, 9, 50);
+  const page = parsePositiveInt(req.query.page, 1, 10000);
   try {
+    const matchingProfileUsers = search
+      ? await prisma.$queryRaw<{ userId: string }[]>`
+      SELECT "userId"
+      FROM "TherapistProfile"
+      WHERE EXISTS (
+        SELECT 1
+        FROM unnest("specialties") AS specialty
+        WHERE specialty ILIKE ${`%${search}%`}
+      )
+      OR EXISTS (
+        SELECT 1
+        FROM unnest("languages") AS language
+        WHERE language ILIKE ${`%${search}%`}
+      )
+    `
+      : [];
+    const where = {
+      role: "therapist",
+      ...(search
+        ? {
+            OR: [
+              {
+                name: {
+                  contains: search,
+                  mode: "insensitive" as const,
+                },
+              },
+              {
+                therapistProfile: {
+                 is: {
+      userId: {
+        in: matchingProfileUsers.map((profile) => profile.userId),
+      },
+    }, 
+                },
+              },
+            
+              {
+                therapistProfile: {
+                  is: {
+                    location: {
+                      contains: search,
+                      mode: "insensitive" as const,
+                    },
+                  },
+                },
+              },
+            ],
+          }
+        : {}),
+    };
     const therapists = await prisma.user.findMany({
-      where: { role: "therapist" },
+      where,
       select: publicTherapistSelect,
       orderBy: { name: "asc" },
+      take: limit,
+      skip: (page - 1) * limit,
     });
-
-    return res.json(therapists.map(toPublicTherapist));
+    const totalTherapists = await prisma.user.count({ where });
+    const totalPages = Math.ceil(totalTherapists / limit);
+    return res.json({
+      therapists: therapists.map(toPublicTherapist),
+      currentPage: page,
+      totalTherapists,
+      totalPages,
+    });
   } catch (err) {
     console.error("Failed to fetch therapists:", err);
 

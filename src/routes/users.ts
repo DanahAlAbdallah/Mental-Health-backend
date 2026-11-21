@@ -2,7 +2,7 @@
 import { Router } from "express";
 import { authenticate, requireRole } from "../middleware/auth";
 import * as users from "../controllers/users";
-
+import { parsePositiveInt } from "../validators/articles";
 const router = Router();
 
 // PUBLIC

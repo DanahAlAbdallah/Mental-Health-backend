@@ -3,14 +3,13 @@ import bcrypt from "bcrypt"; // USE "bcryptjs" IF THAT IS WHAT YOU HAVE INSTALLE
 import jwt from "jsonwebtoken";
 import { prisma } from "../lib/prisma";
 import { JWT_SECRET } from "../config/env";
-import { sendVerificationEmail,sendPasswordResetEmail } from "../lib/mail";
+import { sendVerificationEmail, sendPasswordResetEmail } from "../lib/mail";
 import {
   isSignupRole,
   isValidEmail,
   validatePassword,
 } from "../validators/auth";
 import { generateToken, hashToken } from "../lib/tokens";
-
 
 const DUMMY_HASH = bcrypt.hashSync("not-a-real-password", 10);
 // PRISMA ERRORS HAVE A `code`. P2002 = UNIQUE CONSTRAINT FAILED (EMAIL ALREADY EXISTS).
@@ -23,7 +22,6 @@ function isUniqueConstraintError(err: unknown): boolean {
     (err as { code?: unknown }).code === "P2002"
   );
 }
-
 
 // SIGNUP FUNCTION
 export async function signup(req: Request, res: Response) {
@@ -97,14 +95,16 @@ export async function signup(req: Request, res: Response) {
       // Account exists, but email delivery failed.
       // We will implement a resend endpoint later.
       return res.status(503).json({
-        error: "Account created, but verification email could not be sent. Please try again later.",
+        error:
+          "Account created, but verification email could not be sent. Please try again later.",
       });
     }
 
     // 8. Do NOT issue a JWT yet.
     // The user must verify their email first.
     return res.status(201).json({
-      message: "Account created successfully. Please check your email to verify your account.",
+      message:
+        "Account created successfully. Please check your email to verify your account.",
       user: {
         id: user.id,
         name: user.name,
@@ -115,7 +115,6 @@ export async function signup(req: Request, res: Response) {
         emailVerified: user.emailVerified,
       },
     });
-
   } catch (err) {
     if (isUniqueConstraintError(err)) {
       return res.status(400).json({
@@ -146,10 +145,9 @@ export async function verifyEmail(req: Request, res: Response) {
     const tokenHash = hashToken(token.trim());
 
     // 3. Find the matching token
-    const verificationRecord =
-      await prisma.emailVerificationToken.findUnique({
-        where: { tokenHash },
-      });
+    const verificationRecord = await prisma.emailVerificationToken.findUnique({
+      where: { tokenHash },
+    });
 
     // 4. Reject invalid tokens
     if (!verificationRecord) {
@@ -161,10 +159,7 @@ export async function verifyEmail(req: Request, res: Response) {
     const now = new Date();
 
     // 5. Reject expired or previously used tokens
-    if (
-      verificationRecord.usedAt ||
-      verificationRecord.expiresAt <= now
-    ) {
+    if (verificationRecord.usedAt || verificationRecord.expiresAt <= now) {
       return res.status(400).json({
         error: "Invalid or expired verification link",
       });
@@ -172,17 +167,16 @@ export async function verifyEmail(req: Request, res: Response) {
 
     // 6. Atomically consume the token and verify the account
     const result = await prisma.$transaction(async (tx) => {
-      const consumedToken =
-        await tx.emailVerificationToken.updateMany({
-          where: {
-            id: verificationRecord.id,
-            usedAt: null,
-            expiresAt: { gt: now },
-          },
-          data: {
-            usedAt: now,
-          },
-        });
+      const consumedToken = await tx.emailVerificationToken.updateMany({
+        where: {
+          id: verificationRecord.id,
+          usedAt: null,
+          expiresAt: { gt: now },
+        },
+        data: {
+          usedAt: now,
+        },
+      });
 
       // Another request may already have consumed it
       if (consumedToken.count !== 1) {
@@ -207,7 +201,6 @@ export async function verifyEmail(req: Request, res: Response) {
     return res.status(200).json({
       message: "Email verified successfully. You can now log in.",
     });
-
   } catch (error) {
     console.error("EMAIL VERIFICATION ERROR:", error);
 
@@ -216,8 +209,6 @@ export async function verifyEmail(req: Request, res: Response) {
     });
   }
 }
-
-
 
 // LOGIN FUNCTION
 
@@ -254,10 +245,7 @@ export async function login(req: Request, res: Response) {
     // Use DUMMY_HASH if the user has no password (e.g. Google-only account)
     const passwordHash = user?.password ?? DUMMY_HASH;
 
-    const validPassword = await bcrypt.compare(
-      password,
-      passwordHash,
-    );
+    const validPassword = await bcrypt.compare(password, passwordHash);
 
     // 4. Generic error for invalid credentials
     if (!user || !user.password || !validPassword) {
@@ -275,14 +263,10 @@ export async function login(req: Request, res: Response) {
     }
 
     // 6. Only verified users receive a JWT
-    const token = jwt.sign(
-      { id: user.id, role: user.role },
-      JWT_SECRET,
-      {
-        expiresIn: "7d",
-        algorithm: "HS256",
-      },
-    );
+    const token = jwt.sign({ id: user.id, role: user.role }, JWT_SECRET, {
+      expiresIn: "7d",
+      algorithm: "HS256",
+    });
 
     // 7. Return safe user information
     return res.json({
@@ -297,7 +281,6 @@ export async function login(req: Request, res: Response) {
         emailVerified: user.emailVerified,
       },
     });
-
   } catch (error) {
     console.error("LOGIN ERROR:", error);
 
@@ -357,15 +340,24 @@ export async function forgotPassword(req: Request, res: Response) {
 export async function resetPassword(req: Request, res: Response) {
   const { token, newPassword } = req.body;
 
-  if (!token || !newPassword) {
-    return res
-      .status(400)
-      .json({ error: "Token and new password are required" });
+  if (
+    typeof token !== "string" ||
+    !token.trim() ||
+    typeof newPassword !== "string" ||
+    !newPassword
+  ) {
+    return res.status(400).json({
+      error: "Token and new password are required",
+    });
   }
 
-  // Validate password strength rules (reuse your signup validation rules)
-  // const validationError = validatePassword(newPassword);
-  // if (validationError) return res.status(400).json({ error: validationError });
+  const validationError = validatePassword(newPassword);
+
+  if (validationError) {
+    return res.status(400).json({
+      error: validationError,
+    });
+  }
 
   try {
     const tokenHash = hashToken(token);
@@ -406,11 +398,9 @@ export async function resetPassword(req: Request, res: Response) {
       }),
     ]);
 
-    return res
-      .status(200)
-      .json({
-        message: "Password has been successfully reset. You can now log in.",
-      });
+    return res.status(200).json({
+      message: "Password has been successfully reset. You can now log in.",
+    });
   } catch (err) {
     console.error("Reset password error:", err);
     return res.status(500).json({ error: "Internal server error" });

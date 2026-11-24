@@ -3,7 +3,8 @@ import { prisma } from "../lib/prisma";
 import type { AuthRequest } from "../middleware/auth";
 import { validateMeInput, validateProfileInput } from "../validators/users";
 import { parsePositiveInt } from "../validators/articles";
-
+import { supabase } from "../config/supabase";
+import { randomUUID } from "crypto";
 // ======================================================
 // SELECT OBJECTS
 // ======================================================
@@ -293,14 +294,14 @@ export async function listTherapists(req: Request, res: Response) {
               },
               {
                 therapistProfile: {
-                 is: {
-      userId: {
-        in: matchingProfileUsers.map((profile) => profile.userId),
-      },
-    }, 
+                  is: {
+                    userId: {
+                      in: matchingProfileUsers.map((profile) => profile.userId),
+                    },
+                  },
                 },
               },
-            
+
               {
                 therapistProfile: {
                   is: {
@@ -574,6 +575,66 @@ export async function updateMe(req: AuthRequest, res: Response) {
 
     return res.status(500).json({
       error: "Failed to update profile",
+    });
+  }
+}
+
+export async function uploadMyAvatar(req: AuthRequest, res: Response) {
+  if (!req.user?.id) {
+    return res.status(401).json({
+      error: "Authentication required",
+    });
+  }
+
+  if (!req.file) {
+    return res.status(400).json({
+      error: "Please select an image",
+    });
+  }
+
+  try {
+    const file = req.file;
+
+    const extension = file.mimetype.split("/")[1];
+    const fileName = `${req.user.id}/${randomUUID()}.${extension}`;
+
+    const { error: uploadError } = await supabase.storage
+      .from("profile-photos")
+      .upload(fileName, file.buffer, {
+        contentType: file.mimetype,
+        upsert: false,
+      });
+
+    if (uploadError) {
+      console.error("Avatar upload failed:", uploadError);
+
+      return res.status(500).json({
+        error: "Failed to upload profile photo",
+      });
+    }
+
+    const { data } = supabase.storage
+      .from("profile-photos")
+      .getPublicUrl(fileName);
+
+    const avatarUrl = data.publicUrl;
+
+    const user = await prisma.user.update({
+      where: {
+        id: req.user.id,
+      },
+      data: {
+        avatarUrl,
+      },
+      select: privateUserSelect,
+    });
+
+    return res.json(user);
+  } catch (err) {
+    console.error("Failed to save profile photo:", err);
+
+    return res.status(500).json({
+      error: "Failed to save profile photo",
     });
   }
 }

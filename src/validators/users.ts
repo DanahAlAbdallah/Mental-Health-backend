@@ -58,26 +58,49 @@ export function validateProfileInput(body: Record<string, any>): string | null {
 }
 
 // CHECKS THE PERSONAL INFO (NAME, PHONE, PHOTO) SENT TO PUT /me
-export function validateMeInput(body: Record<string, any>): string | null {
-  const { name, phone, avatarUrl } = body;
+// CHECKS THE PERSONAL INFO (NAME, PHONE, AGE, PHOTO) SENT TO PUT /me
+export function validateMeInput(
+  body: Record<string, any>,
+): string | null {
+  const { name, phone, avatarUrl, age } = body;
 
   if (typeof name !== "string" || !name.trim()) {
     return "Name cannot be empty";
   }
+
   if (name.trim().length > 100) {
     return "Name is too long";
   }
+
   if (phone != null) {
-    if (typeof phone !== "string") return "Invalid phone number";
+    if (typeof phone !== "string") {
+      return "Invalid phone number";
+    }
+
     if (phone.trim() && !isValidPhone(phone.trim())) {
       return "Invalid phone number";
     }
   }
+
+  if (age != null) {
+    if (
+      !Number.isInteger(age) ||
+      age < 18 ||
+      age > 120
+    ) {
+      return "Age must be a whole number between 18 and 120";
+    }
+  }
+
   if (avatarUrl != null) {
-    if (typeof avatarUrl !== "string") return "Invalid avatar URL";
+    if (typeof avatarUrl !== "string") {
+      return "Invalid avatar URL";
+    }
+
     if (avatarUrl.trim() && !isValidAvatarUrl(avatarUrl.trim())) {
       return "Avatar must be a valid http or https link";
     }
   }
+
   return null;
 }

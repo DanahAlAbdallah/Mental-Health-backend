@@ -1,9 +1,10 @@
-
 import { Router } from "express";
 import { authenticate, requireRole } from "../middleware/auth";
 import * as users from "../controllers/users";
 import { parsePositiveInt } from "../validators/articles";
 const router = Router();
+import { upload } from "../middleware/upload";
+
 
 // PUBLIC
 router.get("/therapists", users.listTherapists);
@@ -13,43 +14,39 @@ router.get("/therapists/:id", users.getTherapist);
 // Keep /me before /:id
 router.get("/me", authenticate, users.getMyAccount);
 router.put("/me", authenticate, users.updateMe);
+router.post(
+  "/me/avatar",
+  authenticate,
+  upload.single("photo"),
+  users.uploadMyAvatar,
+);
 
 // LOGGED-IN THERAPIST
 router.get(
   "/me/profile",
   authenticate,
   requireRole("therapist"),
-  users.getMyProfile
+  users.getMyProfile,
 );
 
 router.put(
   "/me/profile",
   authenticate,
   requireRole("therapist"),
-  users.saveMyProfile
+  users.saveMyProfile,
 );
 
 // ADMIN ONLY
-router.get(
-  "/",
-  authenticate,
-  requireRole("admin"),
-  users.listUsers
-);
+router.get("/", authenticate, requireRole("admin"), users.listUsers);
 
 router.get(
   "/admin/:id",
   authenticate,
   requireRole("admin"),
-  users.getAdminUser
+  users.getAdminUser,
 );
 
-router.delete(
-  "/:id",
-  authenticate,
-  requireRole("admin"),
-  users.deleteUser
-);
+router.delete("/:id", authenticate, requireRole("admin"), users.deleteUser);
 
 // PUBLIC THERAPIST PROFILE ONLY
 router.get("/:id", users.getUserDetails);

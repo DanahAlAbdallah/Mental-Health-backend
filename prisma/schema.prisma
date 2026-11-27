@@ -24,7 +24,7 @@ model User {
   id                String    @id @default(uuid())
   name              String
   email             String    @unique
-  password          String?   // Made optional to support Google-only OAuth accounts
+  password          String?   
   role              String
   phone             String?
   avatarUrl         String?
@@ -32,7 +32,6 @@ model User {
   emailVerificationTokens EmailVerificationToken[]
   passwordChangedAt DateTime? // Security tracking: invalidates old JWTs after a password reset
   createdAt         DateTime  @default(now())
-
   therapistProfile  TherapistProfile?
   articles          Article[]
   resetTokens       PasswordResetToken[] // Relation to manage password reset tokens

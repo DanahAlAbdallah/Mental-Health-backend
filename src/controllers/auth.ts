@@ -25,8 +25,8 @@ function isUniqueConstraintError(err: unknown): boolean {
 
 // SIGNUP FUNCTION
 export async function signup(req: Request, res: Response) {
-  const { name, email, password, role } = req.body ?? {};
-
+const { name, email, password, role, returnTo } = req.body ?? {};
+const safeReturnTo = returnTo === "/therapists" ? "/therapists" : "/";
   // 1. Validate name
   if (typeof name !== "string" || !name.trim() || name.trim().length > 100) {
     return res.status(400).json({ error: "Name is required" });
@@ -88,7 +88,7 @@ export async function signup(req: Request, res: Response) {
 
     // 7. Send the verification email
     try {
-      await sendVerificationEmail(user.email, rawToken);
+   await sendVerificationEmail(user.email, rawToken, safeReturnTo);
     } catch (emailError) {
       console.error("Verification email delivery failed:", emailError);
 
@@ -197,10 +197,38 @@ export async function verifyEmail(req: Request, res: Response) {
       });
     }
 
-    // 7. Success
-    return res.status(200).json({
-      message: "Email verified successfully. You can now log in.",
+    const user = await prisma.user.findUnique({
+      where: { id: verificationRecord.userId },
     });
+
+    if (!user) {
+      return res.status(404).json({
+        error: "User not found",
+      });
+    }
+
+ const authToken = jwt.sign(
+  { id: user.id, role: user.role },
+  JWT_SECRET,
+  {
+    expiresIn: "7d",
+    algorithm: "HS256",
+  },
+);
+    // 7. Success
+  return res.status(200).json({
+  message: "Email verified successfully.",
+  token: authToken,
+  user: {
+    id: user.id,
+    name: user.name,
+    phone: user.phone,
+    avatarUrl: user.avatarUrl,
+    email: user.email,
+    role: user.role,
+    emailVerified: user.emailVerified,
+  },
+});
   } catch (error) {
     console.error("EMAIL VERIFICATION ERROR:", error);
 

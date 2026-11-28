@@ -47,8 +47,9 @@ export async function sendPasswordResetEmail(email: string, token: string) {
 }
 
 // FUNCTION FOR VERIFYING ACCOUNT
-export async function sendVerificationEmail(email: string, token: string) {
-  const verificationLink = `${process.env.FRONTEND_URL}/verify-email?token=${token}`;
+export async function sendVerificationEmail(email: string, token: string,returnTo: string) {
+  const verificationLink =
+  `${process.env.FRONTEND_URL}/verify-email?token=${token}&returnTo=${encodeURIComponent(returnTo)}`;
 
   const fromEmail =
     process.env.NODE_ENV === "production"
